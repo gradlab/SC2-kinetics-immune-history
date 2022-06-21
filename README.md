@@ -4,8 +4,11 @@
 __James A. Hay, Stephen M. Kissler, Joseph R. Fauver, Christina Mack, Caroline G. Tai, Radhika M. Samant, Sarah Connolly, Deverick J. Anderson, Gaurav Khullar, Matthew MacKay, Miral Patel, Shannan Kelly, April Manhertz, Isaac Eiter, Daisy Salgado, Tim Baker, Ben Howard, Joel T. Dudley, Christopher E. Mason, Manoj Nair, Yaoxing Huang, David D. Ho, Nathan D. Grubaugh, Yonatan H. Grad__
 
 For issues with code, please contact: 
+
 jhay@hsph.harvard.edu
+
 skissler@hsph.harvard.edu
+
 ygrad@hsph.harvard.edu
 
 
