@@ -37,7 +37,7 @@ The code is broadly split into two parts: 1) code to clean the data and generate
 # Setup
 Key packages to install are [`RStan`](https://mc-stan.org/users/interfaces/rstan) and [`brms`](https://cran.r-project.org/web/packages/brms/index.html). Both require an installation of Stan and a working C++ toolchain, installation of which depends on your operating system (see [here](https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started)).
 
-Many of the analyses are run on the [Harvard FAS HPC](https://www.rc.fas.harvard.edu/) as batch jobs. These are any of the scripts in the `cluster` folder. It is possible to tweak these to run locally, but it may require a bit of fiddling. In short, we run these analyses by closing the Git repo to a home working directory on the cluster and sourcing scripts/using batch files to submit jobs through the command line.
+Many of the analyses are run on the [Harvard FASRC HPC](https://www.rc.fas.harvard.edu/) as batch jobs. These are any of the scripts in the `cluster` folder. It is possible to tweak these to run locally, but it may require a bit of fiddling. In short, we run these analyses by closing the Git repo to a home working directory on the cluster and sourcing scripts/using batch files to submit jobs through the command line.
 
 Otherwise, standard R packages are required including:
 ``` r
@@ -46,8 +46,8 @@ c("tidyverse","lubridate","ggbeeswarm","data.table","patchwork","mice","zoo",
 ```
 
 # Data cleaning
-Provided in the `data` folder are three versions of the raw data:
-1. `ct_data_cleaned.csv`: the raw data prior to pre-processing for regression analyses. Note that there are a number of variables which are used only in these scripts. A summary of variables is provided in `data/data_description.txt`.
+Provided in the `data` folder are two versions of the raw data:
+1. `ct_data_cleaned.csv`: the raw data prior to pre-processing for regression analyses. Note that there are a number of variables which are used only in these scripts.
 2. `data_for_regressions.RData`: the cleaned data used for all of the regression analyses and viral kinetics model. This has some additional variables, transformations, filters and categorizations to facilitate the model fitting.
 
 # Raw data analyses
@@ -55,14 +55,13 @@ Provided in the `data` folder are three versions of the raw data:
 1. `prep_data_for_regression.R`: adds variables, transformations and filters to the raw data to facilitate model fitting. Also produces Fig 1A and Fig 2C and generates the symptomatic data statistics.
 2. `raw_data.R`: generates the summary statistics for the results section and Fig S1.
 3. `rebounds.R`: generates Fig 1B. Table 1 and the summary statistics on rebound infections. Also generates Figure 1.
-5. `analyze_titers.R`: generates summary information and some exploratory analyses of the antibody titer data.
 
 # Logistic regression analyses
-All of these analyses are run on the Harvard FAS HPC. For each analysis, there are two scripts:
+All of these analyses are run on the Harvard FASRC HPC. For each analysis, there are two scripts:
 1. `cluster_submit_XX.sh`: this is the batch file used to submit a list of jobs.
 2. `brm_regression_cluster_XX.R`: the R script sourced by the cluster submit file. Sourcing this file once will run a single iteration of the model fitting. You can modify this file to run locally by changing the working directory to this Git repository, and by setting `i` to the desired model run.
 
-Outputs from these scripts will be saved in the `outputs` folder. We have only included the RStan objects for a subset of the base regression models, immune history regression models and boost/titer group models due to size constraints. All of the remaining RStan objects, including the k-folds cross-validation dataset will be provided if requested.
+Outputs from these scripts are saved in the `outputs` folder. We have only included the RStan objects for a subset of the base regression models, immune history regression models and boost/titer group models due to size constraints. All of the remaining RStan objects, including the k-folds cross-validation dataset will be provided if requested.
 
 # Viral kinetics model
 All code for this part of the analyses is in the `code` folder.
