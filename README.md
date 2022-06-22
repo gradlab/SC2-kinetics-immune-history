@@ -27,7 +27,6 @@ All code is available under the GNU General Public License, version 3, included 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-<<<<<<< HEAD
 # Summary
 Code and data to reproduce all of the analyses in the paper linked here: [https://doi.org/10.1101/2022.01.13.22269257](https://doi.org/10.1101/2022.01.13.22269257).
 
@@ -66,4 +65,4 @@ All of these analyses are run on the Harvard FAS HPC. For each analysis, there a
 Outputs from these scripts will be saved in the `outputs` folder. We have only included the RStan objects for a subset of the base regression models, immune history regression models and boost/titer group models due to size constraints. All of the remaining RStan objects, including the k-folds cross-validation dataset will be provided if requested.
 
 # Viral kinetics model
-
+All code for this part of the analyses is in the `code` folder.
