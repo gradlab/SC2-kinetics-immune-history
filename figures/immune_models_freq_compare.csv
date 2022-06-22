@@ -1,0 +1,9 @@
+Model,ELPD difference,SE difference,AUC,Weight,Classification accuracy,Accuracy (>=30),Accuracy (<30),
+Cumulative number of exposures and lineage,0,0,0.9,0.189,0.829,0.894,0.637,4630.506025
+Days since previous exposure and lineage,-6.053,11.613,0.899,0.281,0.826,0.89,0.639,4642.612002
+Vaccination status and lineage,-6.907,11.836,0.899,0.292,0.826,0.887,0.649,4644.319456
+Cumulative number of exposures,-24.622,8.645,0.896,0.237,0.825,0.898,0.613,4679.749438
+Vaccination status,-43.428,13.353,0.892,0,0.821,0.888,0.626,4717.36105
+Days since previous exposure,-44.91,13.731,0.893,0.001,0.82,0.89,0.616,4720.326488
+Lineage,-74.343,12.956,0.888,0,0.818,0.891,0.605,4779.191178
+Baseline,-80.956,14.08,0.887,0,0.817,0.894,0.592,4792.417058

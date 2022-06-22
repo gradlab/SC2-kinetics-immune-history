@@ -1,0 +1,9 @@
+Model,Weight
+Vaccination status and lineage,0.404
+Cumulative number of exposures and lineage,0.314
+Cumulative number of exposures,0.282
+Baseline,2.33e-05
+Days since previous exposure and lineage,1.02e-05
+Lineage,2.69e-06
+Vaccination status,2.13e-06
+Days since previous exposure,1.73e-07
