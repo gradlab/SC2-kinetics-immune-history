@@ -475,6 +475,7 @@ dat_subset_use <- dat_subset %>%
            LineageBroad, 
            Symptomatic,
            DetectionSpeed,
+           LastNegative,
            DaysSinceExposureGroup,
            CumulativeExposureNumber,
            CumulativeInfectionNumber,
@@ -505,7 +506,18 @@ dat_subset_use %>% select(PersonID, VaccStatus, LineageBroad) %>% ungroup() %>% 
 save(p_traj,file="plots/traj_plot.RData")
 ggsave(filename="figures/all_trajectories.png",p_traj,height=8,width=8,units="in",dpi=300)
 ggsave(filename="figures/all_trajectories.pdf",p_traj,height=8,width=8)
-save(dat_subset_use, file="data/data_for_regressions.RData")
 
 dat_subset_use %>% filter(!is.na(BoostTiterGroup)) %>%group_by(DaysSinceDetection,BoostTiterGroup,DetectionSpeed) %>% summarize(mean_ct=mean(CtT1)) %>% ggplot() + geom_line(aes(x=DaysSinceDetection,y=mean_ct,col=BoostTiterGroup)) + facet_wrap(~DetectionSpeed) + scale_y_continuous(trans="reverse")
 
+## Add dummy row for preceding negative
+initial_detection_date <- dat_subset_use %>% group_by(PersonID, CumulativeInfectionNumber) %>% filter(DaysSinceDetection==min(DaysSinceDetection)) %>% ungroup()
+initial_detection_date <- initial_detection_date %>% filter(!is.na(LastNegative))
+for(i in 1:nrow(initial_detection_date)){
+    initial_detection_date$DaysSinceDetection[i] <- initial_detection_date$LastNegative[i] 
+    initial_detection_date$low_ct1[i] <- 0 
+    initial_detection_date$CtT1[i] <- 40
+}
+dat_subset_use <- bind_rows(dat_subset_use,initial_detection_date)
+
+
+save(dat_subset_use, file="data/data_for_regressions.RData")
