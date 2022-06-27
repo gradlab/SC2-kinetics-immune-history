@@ -83,7 +83,7 @@ run_pars_list <- list(
 		titeralt=FALSE,
 		immunevar="vax" # of: "titer" "vax" "symp" "titersymp" "vaxsymp"
 		),
-	# 9) Basic set, titer with cut @ 400
+	# 8) Basic set, titer with cut @ 400
 	list(excluded_rows=c(),
 		tp_prior=c(0,2),
 		dp_midpoint=20,
@@ -93,6 +93,18 @@ run_pars_list <- list(
 		lambda=0.01,
 		fpmean=1/log(10),
 		titeralt=TRUE,
+		immunevar="titer" # of: "titer" "vax" "symp" "titersymp" "vaxsymp"
+		),
+	# 9) Sensitivity: restrict to frequent testers
+	list(excluded_rows=(ct_dat_refined %>% filter(DetectionSpeed!="Frequent testing") %>% pull(RowID)),
+		tp_prior=c(0,2),
+		dp_midpoint=20,
+		wp_midpoint=5,
+		wr_midpoint=12,
+		sigma_prior=c(0,0.5),
+		lambda=0.01,
+		fpmean=1/log(10),
+		titeralt=FALSE,
 		immunevar="titer" # of: "titer" "vax" "symp" "titersymp" "vaxsymp"
 		)
 	)
