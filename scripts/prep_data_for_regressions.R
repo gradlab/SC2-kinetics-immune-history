@@ -41,7 +41,8 @@ dat_detections <- dat %>%
                                  "≥2 days",DetectionSpeed)) %>%
     select(PersonID, TestDate, DetectionSpeed, DaysSinceNegative)
 dat <- dat %>% left_join(dat_detections)%>% 
-    fill(DetectionSpeed, .direction="down")
+    group_by(PersonID, CumulativeInfectionNumber) %>%
+    fill(DetectionSpeed, .direction="updown")
 dat <- dat %>%
     mutate(DetectionSpeed = ifelse(NewInfectionIdentified == 1 & is.na(DetectionSpeed), "≥2 days", DetectionSpeed))
 dat %>% filter(NewInfectionIdentified == 1 | DaysSinceDetection == 0) %>% select(PersonID, CumulativeInfectionNumber, DetectionSpeed) %>% distinct() %>% group_by(DetectionSpeed) %>% tally()
@@ -341,7 +342,7 @@ p_traj <-  ggplot()  +
     geom_text(data=samp_sizes,aes(x=20,y=20,label=label),size=3) +
     #geom_line(data=dat_summary2, aes(x=DaysSinceDetection,y=mean_ct,linetype="Only positive",col=LineageBroad),size=0.75,linetype="dashed") + 
     scale_y_continuous(trans="reverse",expand=c(0,0),breaks=seq(10,40,by=5)) + 
-    scale_x_continuous(limits=c(0,25),breaks=seq(0,25,by=5)) +
+    scale_x_continuous(limits=c(-5,25),breaks=seq(-5,25,by=5)) +
     #facet_grid(DetectionSpeed~LineageBroad) + 
     facet_grid(LineageBroad~DetectionSpeed) +
     theme_classic() + 
@@ -507,17 +508,58 @@ save(p_traj,file="plots/traj_plot.RData")
 ggsave(filename="figures/all_trajectories.png",p_traj,height=8,width=8,units="in",dpi=300)
 ggsave(filename="figures/all_trajectories.pdf",p_traj,height=8,width=8)
 
-dat_subset_use %>% filter(!is.na(BoostTiterGroup)) %>%group_by(DaysSinceDetection,BoostTiterGroup,DetectionSpeed) %>% summarize(mean_ct=mean(CtT1)) %>% ggplot() + geom_line(aes(x=DaysSinceDetection,y=mean_ct,col=BoostTiterGroup)) + facet_wrap(~DetectionSpeed) + scale_y_continuous(trans="reverse")
+dat_subset_use %>% filter(!is.na(BoostTiterGroup)) %>%group_by(DaysSinceDetection,BoostTiterGroup,DetectionSpeed) %>% 
+    summarize(mean_ct=mean(CtT1)) %>% ggplot() + geom_line(aes(x=DaysSinceDetection,y=mean_ct,col=BoostTiterGroup)) + facet_wrap(~DetectionSpeed) + scale_y_continuous(trans="reverse") + 
+    scale_x_continuous(limits=c(-5,10))
 
-## Add dummy row for preceding negative
-initial_detection_date <- dat_subset_use %>% group_by(PersonID, CumulativeInfectionNumber) %>% filter(DaysSinceDetection==min(DaysSinceDetection)) %>% ungroup()
-initial_detection_date <- initial_detection_date %>% filter(!is.na(LastNegative))
-for(i in 1:nrow(initial_detection_date)){
-    initial_detection_date$DaysSinceDetection[i] <- initial_detection_date$LastNegative[i] 
-    initial_detection_date$low_ct1[i] <- 0 
-    initial_detection_date$CtT1[i] <- 40
-}
-dat_subset_use <- bind_rows(dat_subset_use,initial_detection_date)
-
+dat_subset_use %>% group_by(DaysSinceDetection,DetectionSpeed,LineageBroad) %>% 
+    summarize(mean_ct=mean(CtT1)) %>% ggplot() + geom_line(aes(x=DaysSinceDetection,y=mean_ct,col=LineageBroad)) + facet_wrap(~DetectionSpeed) + scale_y_continuous(trans="reverse") + 
+    scale_x_continuous(limits=c(-3,5))
 
 save(dat_subset_use, file="data/data_for_regressions.RData")
+
+tmp <- dat_subset %>% left_join(dat_subset %>% 
+                                    select(PersonID, CumulativeInfectionNumber,LineageBroad, DetectionSpeed) %>%
+                                    group_by(PersonID, CumulativeInfectionNumber,LineageBroad, DetectionSpeed) %>%
+                                    tally() %>% 
+                                    filter(n > 3) %>%
+                                    select(-n) %>%
+                                    distinct() %>% 
+                                    group_by(LineageBroad, DetectionSpeed) %>%sample_n(3) %>% mutate(Bolden=TRUE)) %>% mutate(Bolden=ifelse(is.na(Bolden),FALSE,TRUE))
+ggplot()  + 
+    geom_line(data= tmp %>% filter(Bolden==FALSE),aes(x=DaysSinceDetection,y=CtT1,group=PersonID,col=LineageBroad),alpha=0.25,size=0.1) +
+    geom_line(data= tmp %>% filter(Bolden==TRUE),aes(x=DaysSinceDetection,y=CtT1,group=PersonID,col=LineageBroad),alpha=1,size=0.75) +
+    scale_y_continuous(trans="reverse",expand=c(0,0),breaks=seq(10,40,by=5)) + 
+    scale_x_continuous(limits=c(-5,25),breaks=seq(-5,25,by=5)) +
+    #facet_grid(DetectionSpeed~LineageBroad) + 
+    facet_grid(LineageBroad~DetectionSpeed) +
+    theme_classic() + 
+    xlab("Days since detection") + 
+    ylab("Ct value")+ 
+    theme(plot.background = element_rect(fill="white",color=NA)) +
+    geom_hline(yintercept=low_ct_threshold,linetype="dotted",col="black")+
+    #scale_linetype_manual(name="Mean of",values=c("All tests"="solid","Only positive"="dashed")) +
+    scale_color_manual(name="Lineage",values=c("Omicron"=unname(colors["Omicron2"]),"Delta"=unname(colors["Delta2"]),"Other"=unname(colors["Other"]))) +
+    theme(legend.position="none", panel.grid.minor = element_blank(),
+          legend.title=element_text(size=8),legend.text=element_text(size=8),
+          strip.background = element_blank(),strip.text=element_text(face="bold"))
+
+ggplot()  + 
+    geom_line(data= tmp %>% filter(Bolden==FALSE),aes(x=TimeRelToPeak,y=CtT1,group=PersonID,col=LineageBroad),alpha=0.25,size=0.1) +
+    geom_line(data= tmp %>% filter(Bolden==TRUE),aes(x=TimeRelToPeak,y=CtT1,group=PersonID,col=LineageBroad),alpha=1,size=0.75) +
+    scale_y_continuous(trans="reverse",expand=c(0,0),breaks=seq(10,40,by=5)) + 
+    scale_x_continuous(limits=c(-20,20),breaks=seq(-20,20,by=5)) +
+    #facet_grid(DetectionSpeed~LineageBroad) + 
+    facet_grid(LineageBroad~DetectionSpeed) +
+    theme_classic() + 
+    xlab("Days since detection") + 
+    ylab("Ct value")+ 
+    theme(plot.background = element_rect(fill="white",color=NA)) +
+    geom_hline(yintercept=low_ct_threshold,linetype="dotted",col="black")+
+    #scale_linetype_manual(name="Mean of",values=c("All tests"="solid","Only positive"="dashed")) +
+    scale_color_manual(name="Lineage",values=c("Omicron"=unname(colors["Omicron2"]),"Delta"=unname(colors["Delta2"]),"Other"=unname(colors["Other"]))) +
+    theme(legend.position="none", panel.grid.minor = element_blank(),
+          legend.title=element_text(size=8),legend.text=element_text(size=8),
+          strip.background = element_blank(),strip.text=element_text(face="bold"))
+
+dat_subset %>% group_by(PersonID, CumulativeInfectionNumber,DetectionSpeed,LineageBroad) %>% filter(TimeRelToPeak == min(TimeRelToPeak)) %>% group_by(DetectionSpeed,LineageBroad) %>% summarize(mean_wait = mean(TimeRelToPeak),sd_wait = sd(TimeRelToPeak))
