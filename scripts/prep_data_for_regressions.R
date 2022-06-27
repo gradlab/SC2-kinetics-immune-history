@@ -570,4 +570,40 @@ ggplot()  +
           legend.title=element_text(size=8),legend.text=element_text(size=8),
           strip.background = element_blank(),strip.text=element_text(face="bold"))
 
-dat_subset %>% group_by(PersonID, CumulativeInfectionNumber,DetectionSpeed,LineageBroad) %>% filter(TimeRelToPeak == min(TimeRelToPeak)) %>% group_by(DetectionSpeed,LineageBroad) %>% summarize(mean_wait = mean(TimeRelToPeak),sd_wait = sd(TimeRelToPeak))
+
+tmp <- dat_subset %>% left_join(dat_subset %>% 
+                                    filter(DetectionSpeed == "Frequent testing") %>%
+                                    select(PersonID, CumulativeInfectionNumber,LineageBroad) %>%
+                                    group_by(PersonID, CumulativeInfectionNumber,LineageBroad) %>%
+                                    tally() %>% 
+                                    filter(n > 3) %>%
+                                    select(-n) %>%
+                                    distinct() %>% 
+                                    group_by(LineageBroad) %>%sample_n(10) %>% mutate(Bolden=TRUE)) %>% 
+    mutate(Bolden=ifelse(is.na(Bolden),FALSE,TRUE))
+
+ggplot()  + 
+    geom_line(data= tmp %>% filter(Bolden==TRUE),aes(x=TimeRelToPeak,y=CtT1,col=LineageBroad),alpha=1,size=0.1) +
+    geom_text(data=tmp %>% filter(Bolden==TRUE) %>% group_by(PersonID,CumulativeInfectionNumber) %>% 
+                  filter(DaysSinceDetection < 0) %>%
+                  filter(TimeRelToPeak == max(TimeRelToPeak)) %>%
+                  select(PersonID, TimeRelToPeak) %>% distinct(),
+              aes(x=-5,y=15, label=TimeRelToPeak)) +
+    scale_y_continuous(trans="reverse",expand=c(0,0),breaks=seq(10,42,by=5),limits=c(42,10)) + 
+    scale_x_continuous(limits=c(-10,20),breaks=seq(-10,20,by=5)) +
+    facet_wrap(~PersonID) + 
+    theme_classic() + 
+    xlab("Days since detection") + 
+    ylab("Ct value")+ 
+    theme(plot.background = element_rect(fill="white",color=NA)) +
+    geom_hline(yintercept=low_ct_threshold,linetype="dotted",col="black")+
+    #scale_linetype_manual(name="Mean of",values=c("All tests"="solid","Only positive"="dashed")) +
+    scale_color_manual(name="Lineage",values=c("Omicron"=unname(colors["Omicron2"]),"Delta"=unname(colors["Delta2"]),"Other"=unname(colors["Other"]))) +
+    theme(legend.position="none", panel.grid.minor = element_blank(),
+          legend.title=element_text(size=8),legend.text=element_text(size=8),
+          strip.background = element_blank(),strip.text=element_text(face="bold"))
+
+
+dat_subset %>% group_by(PersonID, CumulativeInfectionNumber,DetectionSpeed,LineageBroad) %>% 
+    filter(DaysSinceDetection < 0) %>%
+    filter(TimeRelToPeak == max(TimeRelToPeak)) %>% group_by(DetectionSpeed,LineageBroad) %>% summarize(mean_wait = mean(TimeRelToPeak),sd_wait = sd(TimeRelToPeak))
