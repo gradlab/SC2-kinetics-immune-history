@@ -544,9 +544,17 @@ ggplot()  +
           legend.title=element_text(size=8),legend.text=element_text(size=8),
           strip.background = element_blank(),strip.text=element_text(face="bold"))
 
+tmp_summary <- tmp %>% group_by(DetectionSpeed, TimeRelToPeak, LineageBroad) %>% 
+    summarize(med_ct=mean(CtT1,na.rm=TRUE),
+              lower_50 = quantile(CtT1, 0.25,na.rm=TRUE),
+              upper_50 = quantile(CtT1, 0.75,na.rm=TRUE),
+              lower_95 = quantile(CtT1, 0.025,na.rm=TRUE),
+              upper_95 = quantile(CtT1, 0.975,na.rm=TRUE)) 
+
 ggplot()  + 
     geom_line(data= tmp %>% filter(Bolden==FALSE),aes(x=TimeRelToPeak,y=CtT1,group=PersonID,col=LineageBroad),alpha=0.25,size=0.1) +
-    geom_line(data= tmp %>% filter(Bolden==TRUE),aes(x=TimeRelToPeak,y=CtT1,group=PersonID,col=LineageBroad),alpha=1,size=0.75) +
+    #geom_line(data= tmp %>% filter(Bolden==TRUE),aes(x=TimeRelToPeak,y=CtT1,group=PersonID,col=LineageBroad),alpha=1,size=0.75) +
+    geom_line(data=tmp_summary, aes(x=TimeRelToPeak,y=med_ct,col=LineageBroad),size=0.75) + 
     scale_y_continuous(trans="reverse",expand=c(0,0),breaks=seq(10,40,by=5)) + 
     scale_x_continuous(limits=c(-20,20),breaks=seq(-20,20,by=5)) +
     #facet_grid(DetectionSpeed~LineageBroad) + 
