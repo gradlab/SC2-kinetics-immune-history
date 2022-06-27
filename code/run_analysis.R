@@ -13,7 +13,7 @@ source("code/set_run_pars.R")
 # ct_dat_refined <- ct_dat_refined_raw %>% 
 # 	filter(InfectionEvent %in% InfectionEventvec)
 
-for(run_pars_index in 1:8){
+for(run_pars_index in 9:9){
 
 	run_pars <- run_pars_list[[run_pars_index]]
 
