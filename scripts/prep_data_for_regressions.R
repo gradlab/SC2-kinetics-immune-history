@@ -471,6 +471,7 @@ dat_subset_use <- dat_subset %>%
     select(low_ct1, 
            PersonID,
            CtT1,
+           CtT2,
            VaccStatus, 
            DaysSinceDetection, 
            LineageBroad, 
