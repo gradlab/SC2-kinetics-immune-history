@@ -15,22 +15,25 @@ library(future)
 
 options(future.fork.multithreading.enable = FALSE)
 
-setwd("~/Documents/GitHub/SC2-kinetics-immune-history/")
-#setwd("~/ct_nba")
-rerun_stan <- TRUE
+#setwd("~/Documents/GitHub/SC2-kinetics-immune-history/")
+setwd("~/SC2-kinetics-immune-history")
 
+rerun_stan <- TRUE
 n_iter <- 2000
 
 load("data/data_for_regressions.RData")
 
+## For these analyses, we only want to use Ct values after detection
+dat_subset_use <- dat_subset_use %>% filter(DaysSinceDetection >= 0)
+## Only the titer sensitivity group
 dat_subset_use <- dat_subset_use %>% filter(TiterSensitivity == TRUE)
 
-filename_base <- paste0("outputs/immune_models")
+filename_base <- paste0("outputs/titer_models_sensitivity")
 if(!file.exists(filename_base)) dir.create(filename_base)
 
 ## 48 options
-i <- 1
-#i <- as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID'))
+#i <- 1
+i <- as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID'))
 print(i)
 
 formulas <- list(
