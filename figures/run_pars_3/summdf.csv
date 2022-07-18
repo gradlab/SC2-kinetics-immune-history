@@ -1,0 +1,9 @@
+var,name,mean,lwr,upr,string
+Peak Ct,Omicron: No symptoms,26.4,25.8,26.9,"26.4 (25.8, 26.9)"
+Peak Ct,Omicron: Symptoms,25.4,25,25.7,"25.4 (25, 25.7)"
+Peak GEML,Omicron: No symptoms,6.4,6.3,6.6,"6.4 (6.3, 6.6)"
+Peak GEML,Omicron: Symptoms,6.7,6.6,6.8,"6.7 (6.6, 6.8)"
+Proliferation time,Omicron: No symptoms,4.2,3.8,4.6,"4.2 (3.8, 4.6)"
+Proliferation time,Omicron: Symptoms,3.8,3.5,4,"3.8 (3.5, 4)"
+Clearance time,Omicron: No symptoms,6.8,6.3,7.3,"6.8 (6.3, 7.3)"
+Clearance time,Omicron: Symptoms,7.9,7.6,8.3,"7.9 (7.6, 8.3)"

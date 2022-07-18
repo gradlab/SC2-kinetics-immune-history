@@ -347,7 +347,8 @@ fig_viztrajectories <- indiv_data %>%
 		theme_classic() + 
 		theme(text=element_text(size=9))) 
 
-for(indexA in 1:max(postdf_overall$id)){
+# for(indexA in 1:max(postdf_overall$id)){
+for(indexA in 1:length(fig_viztrajectories)){
 	fig_viztrajectories[[indexA]] <- fig_viztrajectories[[indexA]] + 
 		geom_ribbon(data=boundsup[[indexA]], aes(x=t, y=mean, ymin=global_pars[["lod"]]-lwr, ymax=global_pars[["lod"]]-upr), alpha=0.5, fill=immunecolors[indexA]) + 
 		geom_line(data=boundsup[[indexA]], aes(x=t, y=global_pars[["lod"]]-lwr),size=0.1, col=immunecolors[indexA]) +
