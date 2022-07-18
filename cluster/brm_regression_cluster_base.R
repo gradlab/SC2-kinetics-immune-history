@@ -11,19 +11,22 @@ library(data.table)
 library(ROCR)
 library(tidybayes)
 
-setwd("~/Documents/GitHub/SC2-kinetics-immune-history/")
-#setwd("~/ct_nba")
+#setwd("~/Documents/GitHub/SC2-kinetics-immune-history/")
+setwd("~/SC2-kinetics-immune-history")
 
 n_iter <- 2000
 
 load("data/data_for_regressions.RData")
 
-filename_base <- paste0("outputs/")
+## For these analyses, we only want to use Ct values after detection
+dat_subset_use <- dat_subset_use %>% filter(DaysSinceDetection >= 0)
+
+filename_base <- paste0("outputs/base_models")
 if(!file.exists(filename_base)) dir.create(filename_base)
 
-## Shouild be 8 entries -- 4 models, 2 datasets for each
-i <- 5
-#i <- as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID'))
+## Should be 8 entries -- 4 models, 2 datasets for each
+#i <- 1
+i <- as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID'))
 print(i)
 
 formulas <- list(
