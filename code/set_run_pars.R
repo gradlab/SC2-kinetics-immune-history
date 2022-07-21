@@ -106,5 +106,18 @@ run_pars_list <- list(
 		fpmean=1/log(10),
 		titeralt=FALSE,
 		immunevar="titer" # of: "titer" "vax" "symp" "titersymp" "vaxsymp"
+		), 
+	# 10) high vs low titer among omicron unboosted
+	list(excluded_rows=c(),
+		# (ct_dat_refined %>% filter(!(LineageBroad=="Omicron" & VaccStatus!="Boosted")) %>% pull(RowID))
+		tp_prior=c(0,2),
+		dp_midpoint=20,
+		wp_midpoint=5,
+		wr_midpoint=12,
+		sigma_prior=c(0,0.5),
+		lambda=0.01,
+		fpmean=1/log(10),
+		titeralt=FALSE,
+		immunevar="unboosttiter" # of: "titer" "vax" "symp" "titersymp" "vaxsymp" "unboosttiter"
 		)
 	)

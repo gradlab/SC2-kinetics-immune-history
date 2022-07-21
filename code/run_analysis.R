@@ -13,7 +13,7 @@ source("code/set_run_pars.R")
 # ct_dat_refined <- ct_dat_refined_raw %>% 
 # 	filter(InfectionEvent %in% InfectionEventvec)
 
-for(run_pars_index in 9:9){
+for(run_pars_index in 10:10){
 
 	run_pars <- run_pars_list[[run_pars_index]]
 
@@ -27,7 +27,7 @@ for(run_pars_index in 9:9){
 	source("code/make_figures.R")
 	source("code/save_figures.R")
 
-	source("code/clearbigvars.R")
+	# source("code/clearbigvars.R")
 
 	print(paste0("Done with index ",run_pars_index," ------------"))
 

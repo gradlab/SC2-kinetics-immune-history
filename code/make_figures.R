@@ -46,7 +46,15 @@ if(run_pars$immunevar=="titer"){
 	immunecolors <- c("mediumpurple1","purple3","black","darkblue")
 	immunetags <- c("A)","B)","C)","D)")
 	indiv_data$immunecat <- indiv_data$vaxsympstatus
-}  
+}   else if(run_pars$immunevar=="unboosttiter"){
+	immunelabs <- c("Omicron: unboosted, low titer","Omicron: unboosted, high titer","Omicron: boosted, low titer","Omicron: boosted, high titer")
+	immunelabsdf <- tibble(label=immunelabs, id=1:length(immunelabs)) %>% 
+		mutate(label=factor(label,levels=immunelabs))
+	immunetitle <- "titer"	
+	immunecolors <- c("mediumpurple1","purple3","black","darkblue")
+	immunetags <- c("A)","B)","C)","D)")
+	indiv_data$immunecat <- indiv_data$unboosttiterstatus
+}    
 
 params_indiv <- get_wide_output(fitlist, c("tp","dp","wp","wr")) %>% 
 	left_join((indiv_data %>% 
@@ -347,7 +355,8 @@ fig_viztrajectories <- indiv_data %>%
 		theme_classic() + 
 		theme(text=element_text(size=9))) 
 
-for(indexA in 1:max(postdf_overall$id)){
+# for(indexA in 1:max(postdf_overall$id)){
+for(indexA in 1:length(fig_viztrajectories)){
 	fig_viztrajectories[[indexA]] <- fig_viztrajectories[[indexA]] + 
 		geom_ribbon(data=boundsup[[indexA]], aes(x=t, y=mean, ymin=global_pars[["lod"]]-lwr, ymax=global_pars[["lod"]]-upr), alpha=0.5, fill=immunecolors[indexA]) + 
 		geom_line(data=boundsup[[indexA]], aes(x=t, y=global_pars[["lod"]]-lwr),size=0.1, col=immunecolors[indexA]) +
