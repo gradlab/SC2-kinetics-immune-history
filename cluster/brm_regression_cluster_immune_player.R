@@ -81,9 +81,9 @@ if(rerun_stan){
     fit <- brm(data=tmp_dat, use_formula, family=bernoulli(link="logit"),cores=4,
                prior=c(prior_string("normal(0,10)",class="b"),prior_string("normal(0,10)",class="Intercept")),
                iter=n_iter,save_pars=save_pars(all=TRUE))
-    save(fit, file=paste0("outputs/immune_models/",name,"_",use_data,".RData"))
+    save(fit, file=paste0("outputs/immune_models_nonplayers/",name,"_",use_data,".RData"))
 } else {
-    load(paste0("outputs/immune_models/",name,"_",use_data,".RData"))
+    load(paste0("outputs/immune_models_nonplayers/",name,"_",use_data,".RData"))
 }
 ## Assess performance
 pred <- as.data.frame(predict(fit, type = "response"))
@@ -96,7 +96,7 @@ performance(prediction(pred$Estimate, pull(fit$data, low_ct1)),measure="auc")@y.
 print(availableCores())
 plan(multicore)
 kfold_est <- kfold(fit, chains=1, K=25)
-save(kfold_est, file=paste0("outputs/immune_models/",name,"_",use_data,"_kfolds",".RData"))
+save(kfold_est, file=paste0("outputs/immune_models_nonplayers/",name,"_",use_data,"_kfolds",".RData"))
 
 #loo_est <- loo(fit,reloo=TRUE,chains=1)
 #save(loo_est, file=paste0(name,"_",use_data,"_loo_",i,".RData"))

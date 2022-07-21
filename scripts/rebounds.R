@@ -30,8 +30,10 @@ dat_detections <- dat_to_save %>%
     mutate(DetectionSpeed=ifelse(is.na(DetectionSpeed),
                                  ">=2 days",DetectionSpeed)) %>%
     select(PersonID, CumulativeInfectionNumber,TestDate, DetectionSpeed, DaysSinceNegative)
+
 dat_to_save <- dat_to_save %>% left_join(dat_detections)%>% 
-    fill(DetectionSpeed, .direction="down")
+  group_by(PersonID, CumulativeInfectionNumber) %>%
+  fill(DetectionSpeed, .direction="updown")
 dat_to_save <- dat_to_save %>% mutate(DetectionSpeed = ifelse(is.na(DetectionSpeed),">=2 days",DetectionSpeed))
 
 ## Make the -1 Ct detections NA so we don't use them
@@ -291,7 +293,7 @@ table2 <- table2 %>%
 table1_for_chisq <- end_of_infection %>% select(PersonID, CumulativeInfectionNumber, LineageBroad, ReboundLog) %>% mutate(LineageBroadAlt = ifelse(LineageBroad == "Omicron","Omicron","Other")) %>% distinct()
 table1_for_chisq %>% ungroup() %>% infer::chisq_test(ReboundLog ~ LineageBroadAlt)
 
-table2_for_chisq <- end_of_infection %>% select(PersonID, CumulativeInfectionNumber, VaccStatus, ReboundLog) %>% mutate(VaccStatus = ifelse(VaccStatus == "Boosted","Boosted","Not boosted")) %>% distinct() 
+table2_for_chisq <- end_of_infection %>% filter(VaccStatus != "No record") %>% select(PersonID, CumulativeInfectionNumber, VaccStatus, ReboundLog) %>% mutate(VaccStatus = ifelse(VaccStatus == "Boosted","Boosted","Not boosted")) %>% distinct() 
 table2_for_chisq %>% ungroup() %>% infer::chisq_test(ReboundLog ~ VaccStatus)
 
 ## Stat 3 -- how long after first being Ct > 30 do we keep testing people?

@@ -12,7 +12,7 @@ library(ROCR)
 library(tidybayes)
 library(Rcpp)
 library(future)
-setwd("~/Documents/GitHub/ct_nba")
+setwd("~/Documents/GitHub/SC2-kinetics-immune-history/")
 
 supplementS10 <- TRUE
 
@@ -28,6 +28,7 @@ print_classification_accuracy <- function(fit){
 }
 
 load("data/data_for_regressions.RData")
+dat_subset_use <- dat_subset_use %>% filter(DaysSinceDetection >= 0)
 
 filename_base <- paste0("outputs/immune_models")
 if(!file.exists(filename_base)) dir.create(filename_base)
@@ -140,7 +141,7 @@ convert_to_lineage_and_titer <- function(dat){
 
 plot_models <- which(names$model %in% c(3,4))
 all_plots <- NULL
-setwd("~/Documents/GitHub/ct_nba/")
+setwd("~/Documents/GitHub/SC2-kinetics-immune-history//")
 
 all_dat <- NULL
 
@@ -209,7 +210,13 @@ all_dat <- all_dat %>% mutate(BoostTiterGroup = case_when(
     TRUE~NA_character_))
 all_dat$`Detection group` <- factor(all_dat$`Detection group`, levels=c("Frequent testing","Delayed detection"))
 
+dat_subset_use %>% select(PersonID, LineageBroad,BoostTiterGroup,DetectionSpeed) %>% distinct() %>% group_by(LineageBroad,BoostTiterGroup,DetectionSpeed) %>% tally() %>% filter(LineageBroad == "Omicron")
+dat_subset_use %>% select(PersonID, LineageBroad,BoostTiterGroup) %>% distinct() %>% group_by(LineageBroad,BoostTiterGroup) %>% tally() %>% filter(LineageBroad == "Omicron")
 
+dat_subset_use %>% select(PersonID, LineageBroad,VaccStatus,DetectionSpeed) %>% 
+    filter(LineageBroad == "Omicron") %>%
+    mutate(VaccStatus1 = ifelse(VaccStatus == "Boosted","Boosted","Not boosted")) %>%
+    distinct() %>% group_by(LineageBroad,VaccStatus1,DetectionSpeed) %>% tally()
 
 if(!supplementS10){
     samp_sizes <- dat_subset_use %>% select(PersonID, LineageBroad,BoostTiterGroup,DetectionSpeed) %>% distinct() %>% group_by(LineageBroad,BoostTiterGroup,DetectionSpeed) %>% tally() %>% drop_na() %>%

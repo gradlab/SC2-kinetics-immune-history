@@ -12,7 +12,7 @@ library(ROCR)
 library(tidybayes)
 library(Rcpp)
 library(future)
-setwd("~/Documents/GitHub/ct_nba")
+setwd("~/Documents/GitHub/SC2-kinetics-immune-history/")
 
 
 ## Assess performance
@@ -27,13 +27,14 @@ print_classification_accuracy <- function(fit){
 }
 
 load("data/data_for_regressions.RData")
+dat_subset_use <- dat_subset_use %>% filter(DaysSinceDetection >= 0)
 
 filename_base <- paste0("outputs/titer_models_sensitivity")
 if(!file.exists(filename_base)) dir.create(filename_base)
 
 ## 48 options
-#i <- 3
-i <- as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID'))
+i <- 3
+#i <- as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID'))
 print(i)
 
 formulas <- list(
@@ -138,7 +139,7 @@ convert_to_lineage_and_titer <- function(dat){
 
 plot_models <- which(names$model %in% c(3,4))
 all_plots <- NULL
-setwd("~/Documents/GitHub/ct_nba/")
+setwd("~/Documents/GitHub/SC2-kinetics-immune-history//")
 
 all_dat <- NULL
 

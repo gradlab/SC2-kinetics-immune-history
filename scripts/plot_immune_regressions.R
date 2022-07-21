@@ -12,8 +12,8 @@ library(ROCR)
 library(tidybayes)
 library(Rcpp)
 library(future)
-setwd("~/Documents/GitHub/ct_nba")
-
+setwd("~/Documents/GitHub/SC2-kinetics-immune-history/")
+savewd <- getwd()
 
 ## Assess performance
 print_classification_accuracy <- function(fit){
@@ -27,11 +27,10 @@ print_classification_accuracy <- function(fit){
 }
 
 load("data/data_for_regressions.RData")
-
+dat_subset_use <- dat_subset_use %>% filter(DaysSinceDetection >= 0)
 filename_base <- paste0("outputs/immune_models")
 if(!file.exists(filename_base)) dir.create(filename_base)
-
-print(i)
+i <- 3
 
 names <- c("baseline","vaccine","cumulative_exposures","days_since_exposure","titer_group","titer_group_alt","lineage",
            "vaccine_and_lineage","cumulative_exposures_and_lineage","days_since_exposure_and_lineage",
@@ -202,15 +201,15 @@ write_csv(model_weights_infreq_res %>% arrange(-Weight), file="../../figures/imm
 tmp <- all_conditional_effects[[which(key$name == "cumulative_exposures_and_lineage")[1]]][[3]]
 tmp <- tmp %>% mutate(LineageBroad = ifelse(LineageBroad_CumulativeExposureNumber %like% "Delta","Delta",
                              ifelse(LineageBroad_CumulativeExposureNumber %like% "Omicron","Omicron","Other")))
-tmp <- tmp %>% mutate(InfectionNumber = ifelse(LineageBroad_CumulativeExposureNumber %like% "1",1,
+tmp <- tmp %>% mutate(ExposureNumber = ifelse(LineageBroad_CumulativeExposureNumber %like% "1",1,
                                                ifelse(LineageBroad_CumulativeExposureNumber %like% "2",2,
                                                       ifelse(LineageBroad_CumulativeExposureNumber %like% "3",3,
                                                              ifelse(LineageBroad_CumulativeExposureNumber %like% "4",4,
                                                                     ifelse(LineageBroad_CumulativeExposureNumber %like% "5",5,6  )))))) %>%
-    mutate(InfectionNumber=as.factor(InfectionNumber))
+    mutate(ExposureNumber=as.factor(ExposureNumber))
 p_best_model_freq <- ggplot(tmp) + 
-    geom_ribbon(aes(x=DaysSinceDetection,ymin=lower__,ymax=upper__,fill=InfectionNumber),alpha=0.25) +
-    geom_line(aes(x=DaysSinceDetection,y=estimate__,col=InfectionNumber)) +
+    geom_ribbon(aes(x=DaysSinceDetection,ymin=lower__,ymax=upper__,fill=ExposureNumber),alpha=0.25) +
+    geom_line(aes(x=DaysSinceDetection,y=estimate__,col=ExposureNumber)) +
     scale_fill_viridis_d() + scale_color_viridis_d() +
     ylab("Probability of Ct value <30") +
     xlab("Days since detection") +
@@ -224,15 +223,15 @@ p_best_model_freq <- ggplot(tmp) +
 tmp <- all_conditional_effects[[which(key$name == "cumulative_exposures_and_lineage")[2]]][[3]]
 tmp <- tmp %>% mutate(LineageBroad = ifelse(LineageBroad_CumulativeExposureNumber %like% "Delta","Delta",
                                             ifelse(LineageBroad_CumulativeExposureNumber %like% "Omicron","Omicron","Other")))
-tmp <- tmp %>% mutate(InfectionNumber = ifelse(LineageBroad_CumulativeExposureNumber %like% "1",1,
+tmp <- tmp %>% mutate(ExposureNumber = ifelse(LineageBroad_CumulativeExposureNumber %like% "1",1,
                                                ifelse(LineageBroad_CumulativeExposureNumber %like% "2",2,
                                                       ifelse(LineageBroad_CumulativeExposureNumber %like% "3",3,
                                                              ifelse(LineageBroad_CumulativeExposureNumber %like% "4",4,
                                                                     ifelse(LineageBroad_CumulativeExposureNumber %like% "5",5,6  )))))) %>%
-    mutate(InfectionNumber=as.factor(InfectionNumber))
-p_best_model_infreq <- ggplot(tmp %>% filter(InfectionNumber != 6)) + 
-    geom_ribbon(aes(x=DaysSinceDetection,ymin=lower__,ymax=upper__,fill=InfectionNumber),alpha=0.25) +
-    geom_line(aes(x=DaysSinceDetection,y=estimate__,col=InfectionNumber)) +
+    mutate(ExposureNumber=as.factor(ExposureNumber))
+p_best_model_infreq <- ggplot(tmp %>% filter(ExposureNumber != 6)) + 
+    geom_ribbon(aes(x=DaysSinceDetection,ymin=lower__,ymax=upper__,fill=ExposureNumber),alpha=0.25) +
+    geom_line(aes(x=DaysSinceDetection,y=estimate__,col=ExposureNumber)) +
     scale_fill_viridis_d() + scale_color_viridis_d() +
     ylab("Probability of Ct value <30") +
     xlab("Days since detection") +
@@ -335,7 +334,7 @@ p_titer_model_infreq <- ggplot(tmp) +
     facet_wrap(~LineageBroad,ncol=1)
 
 
-ggsave(p_titer_model_freq + p_titer_model_infreq,filename = "figures/immune_models/titer_lineage_fits.png",width=10,height=10,dpi=300)
-ggsave(p_vacc_model_freq + p_vacc_model_infreq,filename = "figures/immune_models/vacc_lineage_fits.png",width=10,height=10,dpi=300)
-ggsave(p_best_model_freq + p_best_model_infreq,filename = "figures/immune_models/cumu_exposures_fits.png",width=10,height=10,dpi=300)
+ggsave(p_titer_model_freq + p_titer_model_infreq,filename = paste0(savewd,"/figures/immune_models/titer_lineage_fits.png"),width=10,height=10,dpi=300)
+ggsave(p_vacc_model_freq + p_vacc_model_infreq,filename = paste0(savewd,"/figures/immune_models/vacc_lineage_fits.png"),width=10,height=10,dpi=300)
+ggsave(p_best_model_freq + p_best_model_infreq,filename = paste0(savewd,"/figures/immune_models/cumu_exposures_fits.png"),width=10,height=10,dpi=300)
 

@@ -33,6 +33,7 @@ if(!anonymous){
 dat %>% group_by(PersonID) %>% filter(CumulativeInfectionNumber == max(CumulativeInfectionNumber), TestDate == max(TestDate)) %>%
     group_by(VaccStatus) %>% tally()
 
+
 dat %>% group_by(PersonID) %>% filter(CumulativeInfectionNumber == max(CumulativeInfectionNumber), TestDate == max(TestDate), VaccStatus != "No record") %>% 
     ungroup() %>% tally()
 

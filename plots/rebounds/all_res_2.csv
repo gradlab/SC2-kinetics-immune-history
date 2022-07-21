@@ -1,10 +1,10 @@
 Rebound,Rebounds,Total,Initial clearance: consecutive days with Ct≥30 following a Ct<30,Rebound: Subsequent consecutive days with Ct < 30,Percentage
-2 x Ct<25,5,1360,≥2,≥2,0.368%
-2 x Ct<30,40,1360,≥2,≥2,2.94%
-2 x Ct<30 and decrease by 2+ cycles,30,1360,≥2,≥2,2.21%
-3 x Ct<25,2,1360,≥2,≥3,0.147%
-3 x Ct<30,18,1360,≥2,≥3,1.32%
-3 x Ct<30 and decrease by 2+ cycles,12,1360,≥2,≥3,0.882%
-4 x Ct<25,1,1360,≥2,≥4,0.0735%
-4 x Ct<30,7,1360,≥2,≥4,0.515%
-4 x Ct<30 and decrease by 2+ cycles,3,1360,≥2,≥4,0.221%
+2 x Ct<25,5,1334,≥2,≥2,0.375%
+2 x Ct<30,40,1334,≥2,≥2,3%
+2 x Ct<30 and decrease by 2+ cycles,30,1334,≥2,≥2,2.25%
+3 x Ct<25,2,1334,≥2,≥3,0.15%
+3 x Ct<30,18,1334,≥2,≥3,1.35%
+3 x Ct<30 and decrease by 2+ cycles,12,1334,≥2,≥3,0.9%
+4 x Ct<25,1,1334,≥2,≥4,0.075%
+4 x Ct<30,7,1334,≥2,≥4,0.525%
+4 x Ct<30 and decrease by 2+ cycles,3,1334,≥2,≥4,0.225%

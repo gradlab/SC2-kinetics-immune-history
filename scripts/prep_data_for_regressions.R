@@ -13,7 +13,7 @@ colors <- c("black","tomato","red3","dodgerblue","blue")
 names(colors) <- c("Other","Delta1","Delta2","Omicron1","Omicron2")
 
 setwd("~/Documents/GitHub/SC2-kinetics-immune-history/")
-
+savewd <- getwd()
 ## Ct threshold to count as "low"
 low_ct_threshold <- 30
 ## Antibody titer threshold to count as "high"
@@ -236,6 +236,10 @@ dat_incubation_periods %>% group_by(DetectionSpeed) %>%
     summarize(MeanIncubation=mean(IncubationPeriod,na.rm=TRUE), N=n(),
               MedianDelay = median(IncubationPeriod,na.rm=TRUE))
 
+dat_incubation_periods <- dat_incubation_periods %>% mutate(DetectionSpeed = ifelse(DetectionSpeed == "≤1 days",
+                                                                                    "Frequent testing","Delayed detection"))
+dat_incubation_periods$DetectionSpeed <- factor(dat_incubation_periods$DetectionSpeed, levels=c("Frequent testing","Delayed detection"))
+
 p1 <- ggplot(dat_incubation_periods %>% filter(!is.na(IncubationPeriod),LineageBroad !="None")) +
     geom_histogram(aes(x=IncubationPeriod,fill=LineageBroad),binwidth=1,col="grey10",alpha=0.5) +
     geom_vline(data=.%>%group_by(LineageBroad,DetectionSpeed) %>% 
@@ -270,6 +274,11 @@ dat_peak %>% group_by(DetectionSpeed) %>%
     filter(!is.na(Delay)) %>%
     summarize(MeanDelay=mean(Delay,na.rm=TRUE), N=n(),
               MedianDelay = median(Delay,na.rm=TRUE))
+
+
+dat_peak <- dat_peak %>% mutate(DetectionSpeed = ifelse(DetectionSpeed == "≤1 days",
+                                                                                    "Frequent testing","Delayed detection"))
+dat_peak$DetectionSpeed <- factor(dat_peak$DetectionSpeed, levels=c("Frequent testing","Delayed detection"))
 
 ## Most symptom onsets are before peak viral load by a few days
 p2 <- ggplot(dat_peak %>% filter(!is.na(Delay),LineageBroad !="None")) +
@@ -342,7 +351,7 @@ p_traj <-  ggplot()  +
     geom_text(data=samp_sizes,aes(x=20,y=20,label=label),size=3) +
     #geom_line(data=dat_summary2, aes(x=DaysSinceDetection,y=mean_ct,linetype="Only positive",col=LineageBroad),size=0.75,linetype="dashed") + 
     scale_y_continuous(trans="reverse",expand=c(0,0),breaks=seq(10,40,by=5)) + 
-    scale_x_continuous(limits=c(-5,25),breaks=seq(-5,25,by=5)) +
+    scale_x_continuous(limits=c(0,25),breaks=seq(0,25,by=5)) +
     #facet_grid(DetectionSpeed~LineageBroad) + 
     facet_grid(LineageBroad~DetectionSpeed) +
     theme_classic() + 
@@ -470,6 +479,7 @@ write_csv(boosttiter_sample_sizes %>% arrange(DetectionSpeed, LineageBroad, Boos
 dat_subset_use <- dat_subset %>% 
     select(low_ct1, 
            PersonID,
+           AgeGroup,
            CtT1,
            CtT2,
            VaccStatus, 
@@ -608,3 +618,73 @@ ggplot()  +
 dat_subset %>% group_by(PersonID, CumulativeInfectionNumber,DetectionSpeed,LineageBroad) %>% 
     filter(DaysSinceDetection < 0) %>%
     filter(TimeRelToPeak == max(TimeRelToPeak)) %>% group_by(DetectionSpeed,LineageBroad) %>% summarize(mean_wait = mean(TimeRelToPeak),sd_wait = sd(TimeRelToPeak))
+
+## Checking prop with low across boosted groups
+p1 <- dat_subset_use %>% 
+    filter(DetectionSpeed == "Frequent testing") %>%
+    filter(CumulativeInfectionNumber <= 2) %>%
+    filter(DaysSinceDetection >= 0) %>%
+    filter(LineageBroad == "Omicron") %>%
+    mutate(VaccStatus2 = ifelse(VaccStatus == "Boosted","Boosted","Not boosted")) %>% 
+    group_by(CumulativeInfectionNumber, VaccStatus2,DaysSinceDetection,
+             DetectionSpeed,LineageBroad) %>% 
+    summarize(prop=sum(CtT1 < 30)/n()) %>% 
+    left_join(dat_subset_use %>% 
+                  filter(DetectionSpeed == "Frequent testing") %>%
+                  filter(CumulativeInfectionNumber <= 2) %>%
+                  filter(LineageBroad == "Omicron") %>%
+                  mutate(VaccStatus2 = ifelse(VaccStatus == "Boosted","Boosted","Not boosted")) %>% 
+                  select(PersonID, CumulativeInfectionNumber, VaccStatus2,DetectionSpeed,LineageBroad) %>%
+                  distinct() %>%
+                  group_by(CumulativeInfectionNumber, VaccStatus2,DetectionSpeed,LineageBroad) %>%
+                  tally()) %>%
+    mutate(`Omicron infections` = paste0(VaccStatus2, ", Infection number: ", CumulativeInfectionNumber,"; N=",n)) %>%
+    ggplot() + 
+    geom_line(aes(x=DaysSinceDetection,y=prop,col=`Omicron infections`)) + 
+    facet_wrap(~DetectionSpeed) + 
+    xlab("Days since detection") + 
+    ylab("Proportion Ct<30")+ 
+    theme_minimal() +
+    scale_y_continuous(limits=c(0,1)) +
+    scale_color_viridis_d() +
+    theme(plot.background = element_rect(fill="white",color=NA),
+          legend.position=c(0.7,0.8),panel.grid.minor = element_blank(),
+          legend.title=element_text(size=8),legend.text=element_text(size=8),
+          strip.background = element_blank(),strip.text=element_text(face="bold"))
+
+p2 <- dat_subset_use %>% 
+    filter(DetectionSpeed == "Delayed detection") %>%
+    filter(DaysSinceDetection >= 0) %>%
+    filter(CumulativeInfectionNumber <= 2) %>%
+    filter(LineageBroad == "Omicron") %>%
+    mutate(VaccStatus2 = ifelse(VaccStatus == "Boosted","Boosted","Not boosted")) %>% 
+    group_by(CumulativeInfectionNumber, VaccStatus2,DaysSinceDetection,
+             DetectionSpeed,LineageBroad) %>% 
+    summarize(prop=sum(CtT1 < 30)/n()) %>% 
+    left_join(dat_subset_use %>% 
+                  filter(DetectionSpeed == "Delayed detection") %>%
+                  filter(LineageBroad == "Omicron") %>%
+                  filter(CumulativeInfectionNumber <= 2) %>%
+                  mutate(VaccStatus2 = ifelse(VaccStatus == "Boosted","Boosted","Not boosted")) %>% 
+                  select(PersonID, CumulativeInfectionNumber, VaccStatus2,DetectionSpeed,LineageBroad) %>%
+                  distinct() %>%
+                  group_by(CumulativeInfectionNumber, VaccStatus2,DetectionSpeed,LineageBroad) %>%
+                  tally()) %>%
+    mutate(`Omicron infections` = paste0(VaccStatus2, ", Infection number: ", CumulativeInfectionNumber,"; N=",n)) %>%
+    ggplot() + 
+    geom_line(aes(x=DaysSinceDetection,y=prop,col=`Omicron infections`)) + 
+    facet_wrap(~DetectionSpeed)+ 
+    xlab("Days since detection") + 
+    ylab("Proportion Ct<30")+ 
+    scale_color_viridis_d() +
+    scale_y_continuous(limits=c(0,1)) +
+    theme_minimal() +
+    theme(plot.background = element_rect(fill="white",color=NA),
+          legend.position=c(0.7,0.8), panel.grid.minor = element_blank(),
+          legend.title=element_text(size=8),legend.text=element_text(size=8),
+          strip.background = element_blank(),strip.text=element_text(face="bold"))
+
+p_boost_infn <- p1 | p2
+p_boost_infn
+
+ggsave(paste0(savewd,"/figures/supplement/boost_infn.png"),p_boost_infn,height=5,width=12,units="in",dpi=300)

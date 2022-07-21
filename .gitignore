@@ -1,5 +1,6 @@
 
 figures/.DS_Store
+outputs/*
 outputs/.DS_Store
 outputs/immune_models/.DS_Store
 plots/.DS_Store

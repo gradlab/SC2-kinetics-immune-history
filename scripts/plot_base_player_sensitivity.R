@@ -24,9 +24,10 @@ immunecolors <- c("Other: Unvaccinated"="black","Delta: 1-2 doses"="orange3","Om
 colors <- c("black","tomato","red3","dodgerblue","blue")
 names(colors) <- c("Other","Delta1","Delta2","Omicron1","Omicron2")
 
-setwd("~/Documents/GitHub/ct_nba")
+setwd("~/Documents/GitHub/SC2-kinetics-immune-history/")
 
-load("data/data_for_regressions.RData")
+load("~/Documents/GitHub/ct_nba/data/data_for_regressions.RData")
+dat_subset_use <- dat_subset_use %>% filter(DaysSinceDetection >= 0)
 
 ## Read in the two baseline regressions
 load("outputs/player_sensitivity/baseline_1.rdata")
