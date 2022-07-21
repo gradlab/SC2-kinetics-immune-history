@@ -46,7 +46,15 @@ if(run_pars$immunevar=="titer"){
 	immunecolors <- c("mediumpurple1","purple3","black","darkblue")
 	immunetags <- c("A)","B)","C)","D)")
 	indiv_data$immunecat <- indiv_data$vaxsympstatus
-}  
+}   else if(run_pars$immunevar=="unboosttiter"){
+	immunelabs <- c("Omicron: unboosted, low titer","Omicron: unboosted, high titer","Omicron: boosted, low titer","Omicron: boosted, high titer")
+	immunelabsdf <- tibble(label=immunelabs, id=1:length(immunelabs)) %>% 
+		mutate(label=factor(label,levels=immunelabs))
+	immunetitle <- "titer"	
+	immunecolors <- c("mediumpurple1","purple3","black","darkblue")
+	immunetags <- c("A)","B)","C)","D)")
+	indiv_data$immunecat <- indiv_data$unboosttiterstatus
+}    
 
 params_indiv <- get_wide_output(fitlist, c("tp","dp","wp","wr")) %>% 
 	left_join((indiv_data %>% 

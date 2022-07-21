@@ -56,6 +56,12 @@ indiv_data <- ct_dat_refined %>%
 		LineageBroad=="Omicron" & VaccStatus=="Second dose" & Symptomatic=="Yes"~2,
 		LineageBroad=="Omicron" & VaccStatus=="Boosted" & Symptomatic=="No"~3,
 		LineageBroad=="Omicron" & VaccStatus=="Boosted" & Symptomatic=="Yes"~4,
+		TRUE~NA_real_)) %>% 
+	mutate(unboosttiterstatus=case_when(
+		LineageBroad=="Omicron" & ThisTiterGroup%in%titerlow & VaccStatus!="Boosted"~1,
+		LineageBroad=="Omicron" & ThisTiterGroup%in%titerhigh & VaccStatus!="Boosted"~2,
+		LineageBroad=="Omicron" & ThisTiterGroup%in%titerlow & VaccStatus=="Boosted"~3,
+		LineageBroad=="Omicron" & ThisTiterGroup%in%titerhigh & VaccStatus=="Boosted"~4,
 		TRUE~NA_real_))
 
 if(run_pars$immunevar=="titer"){
@@ -68,6 +74,8 @@ if(run_pars$immunevar=="titer"){
 	indiv_data <- filter(indiv_data, !is.na(titersympstatus))
 } else if(run_pars$immunevar=="vaxsymp"){
 	indiv_data <- filter(indiv_data, !is.na(vaxsympstatus))
+} else if(run_pars$immunevar=="unboosttiter"){
+	indiv_data <- filter(indiv_data, !is.na(unboosttiterstatus))
 }
 
 indiv_data <- indiv_data	%>% 
@@ -78,7 +86,7 @@ indiv_data <- indiv_data	%>%
 	clean_infection_events() %>%
 	mutate(id_clean=InfectionEventClean) %>% 
 	ungroup() %>% 
-	select(id, id_clean, t, y, titercat, vaxstatus, sympstatus, titersympstatus, vaxsympstatus, ThisTiterGroup, VaccStatus, Symptomatic, LineageBroad) %>% 
+	select(id, id_clean, t, y, titercat, vaxstatus, sympstatus, titersympstatus, vaxsympstatus, unboosttiterstatus, ThisTiterGroup, VaccStatus, Symptomatic, LineageBroad) %>% 
 	arrange(id_clean, t)
 
 # Store the number of infection events we've kept: 
@@ -119,6 +127,13 @@ vaxsympstatus <- indiv_data %>%
 	arrange(id) %>%
 	pull(vaxsympstatus)
 
+unboosttiterstatus <- indiv_data %>%
+	group_by(id) %>%
+	slice(1) %>%
+	select(id, unboosttiterstatus) %>%
+	arrange(id) %>%
+	pull(unboosttiterstatus)
+
 # Useful dataframe for mapping official ID to Stan ID:
 id_map <- indiv_data %>% 
 	group_by(id) %>%
@@ -151,6 +166,9 @@ if(run_pars$immunevar=="titer"){
 }  else if(run_pars$immunevar=="vaxsymp"){
 	prior_pars$immunecat <- vaxsympstatus
 	prior_pars$max_immunecat <- max(vaxsympstatus)
+}  else if(run_pars$immunevar=="unboosttiter"){	
+	prior_pars$immunecat <- unboosttiterstatus
+	prior_pars$max_immunecat <- max(unboosttiterstatus)
 } else {
 	stop("Invalid immunevar in run_pars")
 }

@@ -27,7 +27,7 @@ for(run_pars_index in 10:10){
 	source("code/make_figures.R")
 	source("code/save_figures.R")
 
-	source("code/clearbigvars.R")
+	# source("code/clearbigvars.R")
 
 	print(paste0("Done with index ",run_pars_index," ------------"))
 
