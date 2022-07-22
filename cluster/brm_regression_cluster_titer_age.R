@@ -1,0 +1,93 @@
+## Perform logistic regression on various subsets of the data
+## Preamble
+library(tidyverse)
+library(zoo)
+library(lubridate)
+library(patchwork)
+library(splines)
+library(brms)
+library(mgcv)
+library(data.table)
+library(ROCR)
+library(tidybayes)
+library(Rcpp)
+library(future)
+
+options(future.fork.multithreading.enable = FALSE)
+
+setwd("~/Documents/GitHub/SC2-kinetics-immune-history/")
+#setwd("~/SC2-kinetics-immune-history")
+
+rerun_stan <- TRUE
+n_iter <- 2000
+
+load("data/data_for_regressions.RData")
+
+## For these analyses, we only want to use Ct values after detection
+dat_subset_use <- dat_subset_use %>% filter(DaysSinceDetection >= 0)
+dat_subset_use$AgeGroup <- as.factor(dat_subset_use$AgeGroup)
+dat_subset_use <- dat_subset_use %>% filter(!is.na(AgeGroup))
+
+filename_base <- paste0("outputs/titer_models_age")
+if(!file.exists(filename_base)) dir.create(filename_base)
+
+## 48 options
+#i <- 3
+i <- as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID'))
+print(i)
+
+formulas <- list(
+    bf(low_ct1 ~ LineageBroad_BoostTiterGroup*AgeGroup + 
+           s(DaysSinceDetection) + 
+           s(DaysSinceDetection,by=AgeGroup) + 
+           s(DaysSinceDetection,by=LineageBroad_BoostTiterGroup)),
+    
+    bf(low_ct1 ~ LineageBroad_VaccStatus_AgeGroup + 
+           s(DaysSinceDetection) + 
+           s(DaysSinceDetection,by=LineageBroad_VaccStatus_AgeGroup))
+    
+)
+
+names <- expand_grid(time=c("all"),freq=c("freq","infreq"),model=seq_along(formulas))
+names <- names %>% mutate(name=paste(time,freq,model,sep="_"))
+
+filename <- names$name[i]
+use_formula <- unlist(formulas[names$model[i]])
+use_data <- names$freq[i]
+use_timerange <- names$time[i]
+
+tmp_dat_frequent <- dat_subset_use %>% filter(DetectionSpeed=="Frequent testing")
+tmp_dat_infrequent <- dat_subset_use %>% filter(DetectionSpeed != "Frequent testing")
+
+if(use_data == "freq") tmp_dat <- tmp_dat_frequent
+if(use_data == "infreq") tmp_dat <- tmp_dat_infrequent
+
+print(use_formula$formula)
+
+if(rerun_stan){
+## BASELINE. Just time since detection
+    fit <- brm(data=tmp_dat, use_formula, family=bernoulli(link="logit"),cores=4,
+               prior=c(prior_string("normal(0,10)",class="b"),prior_string("normal(0,10)",class="Intercept")),
+               iter=n_iter,save_pars=save_pars(all=TRUE))
+
+    save(fit, file=paste0("outputs/titer_models_age/",filename,".RData"))
+} else {
+    load(paste0("outputs/titer_models_age/",filename,".RData"))
+}
+
+## Assess performance
+pred <- as.data.frame(predict(fit, type = "response"))
+pred$pos <- as.numeric(pred$Estimate > 0.5)
+dplyr::bind_cols(fit$data, pred) %>% mutate(correct= pos == low_ct1) %>% summarize(`Proportion correct`=sum(correct)/n())
+dplyr::bind_cols(fit$data, pred) %>% mutate(correct= pos == low_ct1) %>% group_by(low_ct1) %>% 
+    summarize(`Proportion correct`=sum(correct)/n()) %>% rename(`Ct<30`=low_ct1)
+performance(prediction(pred$Estimate, pull(fit$data, low_ct1)),measure="auc")@y.values[[1]]
+
+print(availableCores())
+plan(multicore)
+kfold_est <- kfold(fit, chains=1, K=25)
+save(kfold_est, file=paste0("outputs/titer_models_age/",filename,"_kfolds",".RData"))
+
+#loo_est <- loo(fit,reloo=TRUE,chains=1)
+#save(loo_est, file=paste0(name,"_",use_data,"_loo_",i,".RData"))
+

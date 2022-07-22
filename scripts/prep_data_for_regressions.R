@@ -435,6 +435,8 @@ dat_subset <- dat_subset %>% mutate(low_ct1 = as.numeric(low_ct1), low_ct2=as.nu
 dat_subset <- dat_subset %>% mutate(DetectionSpeed = ifelse(DetectionSpeed=="≤1 days",
                                                             "Frequent testing","Delayed detection"))
 
+
+
 ## Factor levels
 dat_subset$VaccStatus <- factor(dat_subset$VaccStatus,levels=c("Unvaccinated","First dose","Second dose","Boosted"))
 dat_subset$CumulativeExposureNumber <- as.factor(dat_subset$CumulativeExposureNumber)
@@ -450,9 +452,13 @@ dat_subset$LineageBroad_DaysSinceExposureGroup <- paste0(dat_subset$LineageBroad
 dat_subset$LineageBroad_TiterGroup <- paste0(dat_subset$LineageBroad, dat_subset$TiterGroup)
 dat_subset$LineageBroad_TiterGroupAlt <- paste0(dat_subset$LineageBroad, dat_subset$TiterGroupAlt)
 dat_subset$LineageBroad_BoostTiterGroup <- paste0(dat_subset$LineageBroad, dat_subset$BoostTiterGroup)
+dat_subset$LineageBroad_BoostTiterGroup_AgeGroup <- paste0(dat_subset$LineageBroad, dat_subset$BoostTiterGroup,dat_subset$AgeGroup)
 dat_subset$LineageBroad_BoostTiterGroupAlt <- paste0(dat_subset$LineageBroad, dat_subset$BoostTiterGroupAlt)
 dat_subset$LineageBroad_Symptomatic <- paste0(dat_subset$LineageBroad, dat_subset$Symptomatic)
 dat_subset$LineageBroad_Symptomatic_VaccStatus <- paste0(dat_subset$LineageBroad, dat_subset$Symptomatic, dat_subset$VaccStatus)
+
+## Create Age/Vacc/Lineage grouping
+dat_subset$LineageBroad_VaccStatus_AgeGroup <- paste0(dat_subset$LineageBroad, dat_subset$VaccStatus,dat_subset$AgeGroup)
 
 ## NA titer groups should all be NA
 dat_subset <- dat_subset %>% mutate(LineageBroad_BoostTiterGroup = as.character(ifelse(is.na(BoostTiterGroup),NA, LineageBroad_BoostTiterGroup)),
@@ -462,11 +468,13 @@ dat_subset <- dat_subset %>% mutate(LineageBroad_BoostTiterGroup = as.character(
 
 
 dat_subset$LineageBroad_VaccStatus <- as.factor(dat_subset$LineageBroad_VaccStatus)
+dat_subset$LineageBroad_VaccStatus_AgeGroup <- as.factor(dat_subset$LineageBroad_VaccStatus_AgeGroup)
 dat_subset$LineageBroad_CumulativeExposureNumber <- as.factor(dat_subset$LineageBroad_CumulativeExposureNumber)
 dat_subset$LineageBroad_DaysSinceExposureGroup <- as.factor(dat_subset$LineageBroad_DaysSinceExposureGroup)
 dat_subset$LineageBroad_TiterGroup <- as.factor(dat_subset$LineageBroad_TiterGroup)
 dat_subset$LineageBroad_TiterGroupAlt <- as.factor(dat_subset$LineageBroad_TiterGroupAlt)
 dat_subset$LineageBroad_BoostTiterGroup <- as.factor(dat_subset$LineageBroad_BoostTiterGroup)
+dat_subset$LineageBroad_BoostTiterGroup_AgeGroup <- as.factor(dat_subset$LineageBroad_BoostTiterGroup_AgeGroup)
 dat_subset$LineageBroad_BoostTiterGroupAlt <- as.factor(dat_subset$LineageBroad_BoostTiterGroupAlt)
 
 

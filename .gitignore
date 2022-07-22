@@ -16,3 +16,5 @@ data/.DS_Store
 .DS_Store
 output/
 utils_private.R
+*.zip
+figures/~$data_flowchart.pptx
