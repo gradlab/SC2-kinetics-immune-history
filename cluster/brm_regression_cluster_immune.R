@@ -23,8 +23,9 @@ rerun_stan <- TRUE
 load("data/data_for_regressions.RData")
 
 ## For these analyses, we only want to use Ct values after detection
-dat_subset_use <- dat_subset_use %>% filter(DaysSinceDetection >= 0)
+dat_subset_use <- dat_subset_use %>% filter(DaysSinceDetection >= 0) %>% ungroup()
 dat_subset_use <- dat_subset_use %>% filter(!is.na(AgeGroup))
+dat_subset_use %>% select(PersonID) %>% distinct() %>% nrow()
 
 filename_base <- paste0("outputs/immune_models")
 if(!file.exists(filename_base)) dir.create(filename_base)
@@ -42,9 +43,9 @@ formulas <- list(
     bf(low_ct1 ~ VaccStatus + s(DaysSinceDetection) + s(DaysSinceDetection,by=VaccStatus)),
     bf(low_ct1 ~ CumulativeExposureNumber + s(DaysSinceDetection) + s(DaysSinceDetection,by=CumulativeExposureNumber)),
     bf(low_ct1 ~ DaysSinceExposureGroup + s(DaysSinceDetection) + s(DaysSinceDetection,by=DaysSinceExposureGroup)),
-    bf(low_ct1 ~ TiterGroup + s(DaysSinceDetection) + s(DaysSinceDetection,by=TiterGroup)),
+    #bf(low_ct1 ~ TiterGroup + s(DaysSinceDetection) + s(DaysSinceDetection,by=TiterGroup)),
     #bf(low_ct1 ~ TiterGroupAlt + s(DaysSinceDetection) + s(DaysSinceDetection,by=TiterGroupAlt)),
-   # bf(low_ct1 ~ LineageBroad + s(DaysSinceDetection) + s(DaysSinceDetection,by=LineageBroad)),
+   bf(low_ct1 ~ LineageBroad + s(DaysSinceDetection) + s(DaysSinceDetection,by=LineageBroad)),
     
     ## Add interactions with lineage
     bf(low_ct1 ~ LineageBroad_VaccStatus + s(DaysSinceDetection) + s(DaysSinceDetection,by=LineageBroad_VaccStatus)),
@@ -70,8 +71,6 @@ formulas <- list(
     bf(low_ct1 ~ LineageBroad_DaysSinceExposureGroup + AgeGroup + s(DaysSinceDetection) + s(DaysSinceDetection,by=LineageBroad_DaysSinceExposureGroup)+ s(DaysSinceDetection,by=AgeGroup))
     #bf(low_ct1 ~ LineageBroad_TiterGroup + AgeGroup + s(DaysSinceDetection) + s(DaysSinceDetection,by=LineageBroad_TiterGroup)),
     #bf(low_ct1 ~ LineageBroad_TiterGroupAlt + AgeGroup + s(DaysSinceDetection) + s(DaysSinceDetection,by=LineageBroad_TiterGroupAlt))
-    
-    
 )
 
 names <- c("baseline","vaccine","cumulative_exposures","days_since_exposure",
@@ -85,6 +84,8 @@ names <- c("baseline","vaccine","cumulative_exposures","days_since_exposure",
            )
            
 key <- tibble(name=rep(names,2), formula=rep(seq(1, length(formulas),by=1),2), data=rep(1:2, each=length(formulas)))
+
+key <- key %>% filter(name == "lineage")
 
 use_formula <- unlist(formulas[key$formula[i]])
 use_data <- key$data[i]

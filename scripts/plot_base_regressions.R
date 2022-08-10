@@ -28,6 +28,7 @@ setwd("~/Documents/GitHub/SC2-kinetics-immune-history/")
 
 load("data/data_for_regressions.RData")
 dat_subset_use <- dat_subset_use %>% filter(DaysSinceDetection >= 0)
+#dat_subset_use <- dat_subset_use %>% filter(!is.na(AgeGroup))
 
 ## Read in the two baseline regressions
 load("outputs/base_models/baseline_1.rdata")
