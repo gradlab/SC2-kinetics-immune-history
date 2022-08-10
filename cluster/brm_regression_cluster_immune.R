@@ -15,8 +15,8 @@ library(future)
 
 options(future.fork.multithreading.enable = FALSE)
 
-setwd("~/Documents/GitHub/SC2-kinetics-immune-history/")
-#setwd("~/SC2-kinetics-immune-history")
+#setwd("~/Documents/GitHub/SC2-kinetics-immune-history/")
+setwd("~/SC2-kinetics-immune-history")
 
 n_iter <- 2000
 rerun_stan <- TRUE
