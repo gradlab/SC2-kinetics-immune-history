@@ -20,6 +20,7 @@ load("data/data_for_regressions.RData")
 
 ## For these analyses, we only want to use Ct values after detection
 dat_subset_use <- dat_subset_use %>% filter(DaysSinceDetection >= 0)
+dat_subset_use <- dat_subset_use %>% filter(!is.na(AgeGroup))
 
 filename_base <- paste0("outputs/base_models")
 if(!file.exists(filename_base)) dir.create(filename_base)
