@@ -17,6 +17,13 @@ anonymous <- TRUE
 dat <- read_csv("data/ct_data_cleaned.csv")
 repeat_dat <- read_csv("data/ct_data_cleaned_repeats.csv")
 
+## Because things like e.g., vaccination status can change partway through an infection, we need to re-create the categories using the category at the time of detection, not at the time of observation.
+tmp1 <- dat %>% group_by(PersonID, CumulativeInfectionNumber) %>% mutate(x = abs(DaysSinceDetection)) %>% filter(x == min(x)) %>%
+    select(-c(x, DaysSinceDetection, TestDate, TestResult, CtT1, CtT2, DaysSinceNegative, LastNegative, TimeRelToPeak,NewInfectionIdentified))
+tmp2 <- dat %>% select(PersonID, CumulativeInfectionNumber, DaysSinceDetection,TestDate, TestResult, CtT1, CtT2, DaysSinceNegative, LastNegative, TimeRelToPeak,NewInfectionIdentified)
+dat <- left_join(tmp2, tmp1) %>% ungroup()
+
+
 ## Number of individuals
 bind_rows(dat, repeat_dat) %>% select(PersonID) %>% distinct() %>% nrow()
 

@@ -31,7 +31,7 @@ dat <- dat %>% filter(LineageBroad != "BA.2" | is.na(LineageBroad))
 tmp1 <- dat %>% group_by(PersonID, CumulativeInfectionNumber) %>% mutate(x = abs(DaysSinceDetection)) %>% filter(x == min(x)) %>%
     select(-c(x, DaysSinceDetection, TestDate, TestResult, CtT1, CtT2, DaysSinceNegative, LastNegative, TimeRelToPeak,NewInfectionIdentified))
 tmp2 <- dat %>% select(PersonID, CumulativeInfectionNumber, DaysSinceDetection,TestDate, TestResult, CtT1, CtT2, DaysSinceNegative, LastNegative, TimeRelToPeak,NewInfectionIdentified)
-dat1 <- left_join(tmp2, tmp1) %>% ungroup()
+dat <- left_join(tmp2, tmp1) %>% ungroup()
 
 ## RAW DATA NUMBERS
 dat %>% group_by(PersonID) %>% filter(CumulativeInfectionNumber == max(CumulativeInfectionNumber)) %>% select(PersonID, CumulativeInfectionNumber) %>% distinct()  %>% group_by(CumulativeInfectionNumber) %>% tally()
