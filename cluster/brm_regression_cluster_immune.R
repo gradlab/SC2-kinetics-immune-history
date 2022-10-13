@@ -19,7 +19,7 @@ options(future.fork.multithreading.enable = FALSE)
 setwd("~/SC2-kinetics-immune-history")
 
 n_iter <- 2000
-rerun_stan <- TRUE
+rerun_stan <- FALSE
 load("data/data_for_regressions.RData")
 
 ## For these analyses, we only want to use Ct values after detection
@@ -85,8 +85,6 @@ names <- c("baseline","vaccine","cumulative_exposures","days_since_exposure",
            
 key <- tibble(name=rep(names,2), formula=rep(seq(1, length(formulas),by=1),2), data=rep(1:2, each=length(formulas)))
 
-key <- key %>% filter(name == "lineage")
-
 use_formula <- unlist(formulas[key$formula[i]])
 use_data <- key$data[i]
 name <- key$name[i]
@@ -119,7 +117,7 @@ performance(prediction(pred$Estimate, pull(fit$data, low_ct1)),measure="auc")@y.
 
 print(availableCores())
 plan(multicore)
-kfold_est <- kfold(fit, chains=1, K=25)
+kfold_est <- kfold(fit, chains=1, K=25, save_fits=TRUE)
 save(kfold_est, file=paste0("outputs/immune_models/",name,"_",use_data,"_kfolds",".RData"))
 
 #loo_est <- loo(fit,reloo=TRUE,chains=1)

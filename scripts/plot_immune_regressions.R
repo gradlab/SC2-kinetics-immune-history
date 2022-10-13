@@ -54,16 +54,12 @@ formulas <- list(
     bf(low_ct1 ~ VaccStatus + s(DaysSinceDetection) + s(DaysSinceDetection,by=VaccStatus)),
     bf(low_ct1 ~ CumulativeExposureNumber + s(DaysSinceDetection) + s(DaysSinceDetection,by=CumulativeExposureNumber)),
     bf(low_ct1 ~ DaysSinceExposureGroup + s(DaysSinceDetection) + s(DaysSinceDetection,by=DaysSinceExposureGroup)),
-    bf(low_ct1 ~ TiterGroup + s(DaysSinceDetection) + s(DaysSinceDetection,by=TiterGroup)),
-    #bf(low_ct1 ~ TiterGroupAlt + s(DaysSinceDetection) + s(DaysSinceDetection,by=TiterGroupAlt)),
-    # bf(low_ct1 ~ LineageBroad + s(DaysSinceDetection) + s(DaysSinceDetection,by=LineageBroad)),
+    bf(low_ct1 ~ LineageBroad + s(DaysSinceDetection) + s(DaysSinceDetection,by=LineageBroad)),
     
     ## Add interactions with lineage
     bf(low_ct1 ~ LineageBroad_VaccStatus + s(DaysSinceDetection) + s(DaysSinceDetection,by=LineageBroad_VaccStatus)),
     bf(low_ct1 ~ LineageBroad_CumulativeExposureNumber + s(DaysSinceDetection) + s(DaysSinceDetection,by=LineageBroad_CumulativeExposureNumber)),
     bf(low_ct1 ~ LineageBroad_DaysSinceExposureGroup + s(DaysSinceDetection) + s(DaysSinceDetection,by=LineageBroad_DaysSinceExposureGroup)),
-    #bf(low_ct1 ~ LineageBroad_TiterGroup + s(DaysSinceDetection) + s(DaysSinceDetection,by=LineageBroad_TiterGroup)),
-    #bf(low_ct1 ~ LineageBroad_TiterGroupAlt + s(DaysSinceDetection) + s(DaysSinceDetection,by=LineageBroad_TiterGroupAlt)),
     
     ## All of the above but with age
     ## Simple predictors
@@ -72,16 +68,12 @@ formulas <- list(
     bf(low_ct1 ~ VaccStatus + AgeGroup + s(DaysSinceDetection) + s(DaysSinceDetection,by=VaccStatus) + s(DaysSinceDetection,by=AgeGroup)),
     bf(low_ct1 ~ CumulativeExposureNumber + AgeGroup + s(DaysSinceDetection) + s(DaysSinceDetection,by=CumulativeExposureNumber)+ s(DaysSinceDetection,by=AgeGroup)),
     bf(low_ct1 ~ DaysSinceExposureGroup + AgeGroup + s(DaysSinceDetection) + s(DaysSinceDetection,by=DaysSinceExposureGroup)+ s(DaysSinceDetection,by=AgeGroup)),
-    #bf(low_ct1 ~ TiterGroup + AgeGroup + s(DaysSinceDetection) + s(DaysSinceDetection,by=TiterGroup)),
-    #bf(low_ct1 ~ TiterGroupAlt + AgeGroup + s(DaysSinceDetection) + s(DaysSinceDetection,by=TiterGroupAlt)),
     bf(low_ct1 ~ LineageBroad + AgeGroup + s(DaysSinceDetection) + s(DaysSinceDetection,by=LineageBroad)+ s(DaysSinceDetection,by=AgeGroup)),
     
     ## Add interactions with lineage
     bf(low_ct1 ~ LineageBroad_VaccStatus + AgeGroup + s(DaysSinceDetection) + s(DaysSinceDetection,by=LineageBroad_VaccStatus)+ s(DaysSinceDetection,by=AgeGroup)),
     bf(low_ct1 ~ LineageBroad_CumulativeExposureNumber + AgeGroup + s(DaysSinceDetection) + s(DaysSinceDetection,by=LineageBroad_CumulativeExposureNumber)+ s(DaysSinceDetection,by=AgeGroup)),
     bf(low_ct1 ~ LineageBroad_DaysSinceExposureGroup + AgeGroup + s(DaysSinceDetection) + s(DaysSinceDetection,by=LineageBroad_DaysSinceExposureGroup)+ s(DaysSinceDetection,by=AgeGroup))
-    #bf(low_ct1 ~ LineageBroad_TiterGroup + AgeGroup + s(DaysSinceDetection) + s(DaysSinceDetection,by=LineageBroad_TiterGroup)),
-    #bf(low_ct1 ~ LineageBroad_TiterGroupAlt + AgeGroup + s(DaysSinceDetection) + s(DaysSinceDetection,by=LineageBroad_TiterGroupAlt))
 )
 
 use_formula <- unlist(formulas[key$formula[i]])

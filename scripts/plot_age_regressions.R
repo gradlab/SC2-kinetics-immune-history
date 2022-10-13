@@ -230,30 +230,25 @@ fit1 <- fit
 load("outputs/titer_models_age/all_infreq_1.RData")
 fit2 <- fit
 
-newdata <- expand_grid(DaysSinceDetection=seq(0,20,by=0.1), LineageBroad_BoostTiterGroup=unique(fit1$data$LineageBroad_BoostTiterGroup),
-                       AgeGroup=unique(fit1$data$AgeGroup))
-titer_freq_draws <- fit1 %>% epred_draws(newdata=newdata)
-titer_infreq_draws <- fit2 %>% epred_draws(newdata=newdata)
+## Effect of booster status
+tmp_effect_boost <- conditional_effects(fit1,effects="DaysSinceDetection:LineageBroad_BoostTiterGroup",
+                                        conditions=data.frame("AgeGroup"=c("(0,30]","(30,50]","(50,100]")),
+                                        re_formula=NA,int_conditions=list(LineageBroad_BoostTiterGroup=c("OmicronHighBoosted","OmicronLowBoosted","OmicronHighNotBoosted","OmicronLowNotBoosted")))
+tmp_effect_boost <- tmp_effect_boost$`DaysSinceDetection:LineageBroad_BoostTiterGroup`
+tmp_effect_boost <- tmp_effect_boost %>% mutate(Protocol="Frequent testing")
 
 
-
-titer_p_dat <- bind_rows(titer_freq_draws %>% mutate(Protocol="Frequent testing"), 
-                         titer_infreq_draws %>% mutate(Protocol = "Delayed detection")) %>%
-  group_by(Protocol, DaysSinceDetection,LineageBroad_BoostTiterGroup,AgeGroup) %>% 
-  summarize(lower=quantile(.epred,0.025),upper=quantile(.epred,0.975),med=median(.epred)) %>%
-  mutate(LineageBroad = ifelse(LineageBroad_BoostTiterGroup %like% "Other","Other",
-                               ifelse(LineageBroad_BoostTiterGroup %like% "Delta","Delta","Omicron")))
-
-titer_p_dat$Protocol <- factor(vacclineage_p_dat$Protocol,levels=c("Frequent testing","Delayed detection"))
-
-tmp_dat1 <- titer_p_dat %>% filter(LineageBroad == "Omicron") 
-
+tmp_effect_boost2 <- conditional_effects(fit2,effects="DaysSinceDetection:LineageBroad_BoostTiterGroup",conditions=data.frame("AgeGroup"=c("(0,30]","(30,50]","(50,100]")),re_formula=NA,int_conditions=list(LineageBroad_BoostTiterGroup=c("OmicronHighBoosted","OmicronLowBoosted","OmicronHighNotBoosted","OmicronLowNotBoosted")))
+tmp_effect_boost2 <- tmp_effect_boost2$`DaysSinceDetection:LineageBroad_BoostTiterGroup`
+tmp_effect_boost2 <- tmp_effect_boost2 %>% mutate(Protocol="Delayed detection")
+tmp_dat_boost <- bind_rows(tmp_effect_boost,tmp_effect_boost2)
+tmp_dat_boost$Protocol <- factor(tmp_dat_boost$Protocol,levels=c("Frequent testing","Delayed detection"))
 
 boosttitergroup_key <- c("OmicronHighBoosted" = "Omicron: Boosted >250 AU/ml",
                          "OmicronLowBoosted" = "Omicron: Boosted ≤250 AU/ml",
                          "OmicronHighNotBoosted"="Omicron: Not Boosted >250 AU/ml",
                          "OmicronLowNotBoosted"="Omicron: Not Boosted ≤250 AU/ml")
-
+tmp_dat1 <- tmp_dat_boost
 tmp_dat1$`Immune status` <- boosttitergroup_key[as.character(tmp_dat1$LineageBroad_BoostTiterGroup)]
 tmp_dat1$`Detection group` <- factor(tmp_dat1$`Protocol`, levels=c("Frequent testing","Delayed detection"))
 tmp_dat1$`Immune status` <- factor(tmp_dat1$`Immune status`, levels=c("Omicron: Boosted ≤250 AU/ml","Omicron: Boosted >250 AU/ml",
@@ -291,15 +286,16 @@ samp_sizes_titer$`Immune status` <- boosttitergroup_key[as.character(samp_sizes_
 samp_sizes_titer$AgeGroup <- age_key[as.character(samp_sizes_titer$AgeGroup)]
 samp_sizes_titer$AgeGroup <- factor(samp_sizes_titer$AgeGroup, levels=c("<30","30-50",">50"))
 samp_sizes_titer$Protocol <- factor(samp_sizes_titer$Protocol, levels=c("Frequent testing","Delayed detection"))
-
-p_titerlineage <-  ggplot(tmp_dat1, 
+tmp_dat2 <- tmp_dat1 %>% left_join(samp_sizes_titer) %>% filter(label != "N=0")
+tmp_dat2$`Immune status` <- factor(tmp_dat2$`Immune status`, levels=levels(tmp_dat1$`Immune status`))
+p_titerlineage <-  ggplot(tmp_dat2, 
                           col="None") +
   facet_grid(AgeGroup~Protocol) +
-  geom_ribbon(aes(x=DaysSinceDetection,ymin=lower,ymax=upper,fill=`Immune status`,group=interaction(`Immune status`,AgeGroup),y=med), alpha=0.5) +
-  geom_line(aes(col=`Immune status`,y=med,x=DaysSinceDetection))+
-  geom_text(data=samp_sizes_titer,aes(x=18, y=y,label=label,col=`Immune status`),show.legend=FALSE) +
+  geom_ribbon(aes(x=DaysSinceDetection,ymin=lower__,ymax=upper__,fill=`Immune status`,group=interaction(`Immune status`,AgeGroup),y=estimate__), alpha=0.5) +
+  geom_line(aes(col=`Immune status`,y=estimate__,x=DaysSinceDetection))+
+  geom_text(data=samp_sizes_titer,aes(x=22, y=y,label=label,col=`Immune status`),show.legend=FALSE) +
   scale_y_continuous(limits=c(0,1),expand=c(0,0), breaks=seq(0,1,by=0.2)) +
-  scale_x_continuous(limits=c(0,20),breaks=seq(0,20,by=5)) +
+  scale_x_continuous(limits=c(0,25),breaks=seq(0,25,by=5)) +
   labs(y="Probability of Ct value <30",x="Days since detection",fill="Vaccination status",color="Vaccination status") +
   theme_classic() +
   geom_vline(xintercept=5,linetype="dashed") +
@@ -313,5 +309,14 @@ p_titerlineage <-  ggplot(tmp_dat1,
         strip.text=element_text(face="bold"),
         plot.background = element_rect(fill="white",color="white"))
 p_titerlineage
+
+load("plots/age/vaccstatus_age_titers.RData")
+p_new <- (p_titers2 + labs(tag="A") + theme(plot.tag=element_text(face="bold"),
+                                            strip.background=element_blank(),
+                                            strip.text=element_text(face="bold"))) + 
+  (p_titerlineage +  labs(tag="B") + theme(plot.tag=element_text(face="bold"))) +
+  plot_layout(ncol=1,heights=c(1,4))
 ggsave("plots/age/p_vacc_titer_age.png",p_titerlineage,width=7,height=7)
+
+ggsave("plots/age/p_vacc_titer_age_comb.png",p_new,width=8,height=8)
 
