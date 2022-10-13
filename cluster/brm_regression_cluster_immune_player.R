@@ -45,21 +45,18 @@ formulas <- list(
     bf(low_ct1 ~ VaccStatus + s(DaysSinceDetection) + s(DaysSinceDetection,by=VaccStatus)),
     bf(low_ct1 ~ CumulativeExposureNumber + s(DaysSinceDetection) + s(DaysSinceDetection,by=CumulativeExposureNumber)),
     bf(low_ct1 ~ DaysSinceExposureGroup + s(DaysSinceDetection) + s(DaysSinceDetection,by=DaysSinceExposureGroup)),
-    bf(low_ct1 ~ TiterGroup + s(DaysSinceDetection) + s(DaysSinceDetection,by=TiterGroup)),
-    bf(low_ct1 ~ TiterGroupAlt + s(DaysSinceDetection) + s(DaysSinceDetection,by=TiterGroupAlt)),
     bf(low_ct1 ~ LineageBroad + s(DaysSinceDetection) + s(DaysSinceDetection,by=LineageBroad)),
     
     ## Add interactions with lineage
     bf(low_ct1 ~ LineageBroad_VaccStatus + s(DaysSinceDetection) + s(DaysSinceDetection,by=LineageBroad_VaccStatus)),
     bf(low_ct1 ~ LineageBroad_CumulativeExposureNumber + s(DaysSinceDetection) + s(DaysSinceDetection,by=LineageBroad_CumulativeExposureNumber)),
-    bf(low_ct1 ~ LineageBroad_DaysSinceExposureGroup + s(DaysSinceDetection) + s(DaysSinceDetection,by=LineageBroad_DaysSinceExposureGroup)),
-    bf(low_ct1 ~ LineageBroad_TiterGroup + s(DaysSinceDetection) + s(DaysSinceDetection,by=LineageBroad_TiterGroup)),
-    bf(low_ct1 ~ LineageBroad_TiterGroupAlt + s(DaysSinceDetection) + s(DaysSinceDetection,by=LineageBroad_TiterGroupAlt))
+    bf(low_ct1 ~ LineageBroad_DaysSinceExposureGroup + s(DaysSinceDetection) + s(DaysSinceDetection,by=LineageBroad_DaysSinceExposureGroup))
 )
 
-names <- c("baseline","vaccine","cumulative_exposures","days_since_exposure","titer_group","titer_group_alt","lineage",
-           "vaccine_and_lineage","cumulative_exposures_and_lineage","days_since_exposure_and_lineage",
-           "titer_group_and_lineage","titer_group_alt_and_lineage")
+names <- c("baseline","vaccine","cumulative_exposures","days_since_exposure",
+           "lineage",
+           "vaccine_and_lineage","cumulative_exposures_and_lineage","days_since_exposure_and_lineage"
+           )
            
 key <- tibble(name=rep(names,2), formula=rep(seq(1, length(formulas),by=1),2), data=rep(1:2, each=length(formulas)))
 
@@ -95,7 +92,7 @@ performance(prediction(pred$Estimate, pull(fit$data, low_ct1)),measure="auc")@y.
 
 print(availableCores())
 plan(multicore)
-kfold_est <- kfold(fit, chains=1, K=25)
+kfold_est <- kfold(fit, chains=1, K=25, save_fits = TRUE)
 save(kfold_est, file=paste0("outputs/immune_models_nonplayers/",name,"_",use_data,"_kfolds",".RData"))
 
 #loo_est <- loo(fit,reloo=TRUE,chains=1)

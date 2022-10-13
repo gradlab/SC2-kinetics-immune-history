@@ -38,21 +38,13 @@ print(i)
 
 formulas <- list(
     bf(low_ct1 ~ BoostTiterGroup + s(DaysSinceDetection) + s(DaysSinceDetection,by=BoostTiterGroup)),
-    bf(low_ct1 ~ BoostTiterGroupAlt + s(DaysSinceDetection) + s(DaysSinceDetection,by=BoostTiterGroupAlt)),
     bf(low_ct1 ~ LineageBroad_BoostTiterGroup + s(DaysSinceDetection) + s(DaysSinceDetection,by=LineageBroad_BoostTiterGroup)),
-    bf(low_ct1 ~ LineageBroad_BoostTiterGroupAlt + s(DaysSinceDetection) + s(DaysSinceDetection,by=LineageBroad_BoostTiterGroupAlt)),
     
     bf(low_ct1 ~ LineageBroad*BoostTiterGroup + 
            s(DaysSinceDetection) + 
            s(DaysSinceDetection,by=BoostTiterGroup) + 
            s(DaysSinceDetection,by=LineageBroad) +
-           s(DaysSinceDetection,by=interaction(LineageBroad,BoostTiterGroup))),
-    
-    bf(low_ct1 ~ LineageBroad*BoostTiterGroupAlt + 
-           s(DaysSinceDetection) + 
-           s(DaysSinceDetection,by=BoostTiterGroupAlt) + 
-           s(DaysSinceDetection,by=LineageBroad) +
-           s(DaysSinceDetection,by=interaction(LineageBroad,BoostTiterGroupAlt)))
+           s(DaysSinceDetection,by=interaction(LineageBroad,BoostTiterGroup)))
 )
 
 names <- expand_grid(time=c("all","under60","under90","60to90"),freq=c("freq","infreq"),model=seq_along(formulas))
@@ -102,7 +94,7 @@ performance(prediction(pred$Estimate, pull(fit$data, low_ct1)),measure="auc")@y.
 
 print(availableCores())
 plan(multicore)
-kfold_est <- kfold(fit, chains=1, K=25)
+kfold_est <- kfold(fit, chains=1, K=25, save_fits=TRUE)
 save(kfold_est, file=paste0("outputs/titer_models_sensitivity/",filename,"_kfolds",".RData"))
 
 #loo_est <- loo(fit,reloo=TRUE,chains=1)
