@@ -8,6 +8,7 @@ library(tidyverse)
 library(lubridate)
 library(data.table)
 library(ggbeeswarm)
+library(patchwork)
 
 colors <- c("black","tomato","red3","dodgerblue","blue")
 names(colors) <- c("Other","Delta1","Delta2","Omicron1","Omicron2")
@@ -25,6 +26,12 @@ dat <- read_csv("data/ct_data_cleaned.csv")
 
 ## Remove BA.2
 dat <- dat %>% filter(LineageBroad != "BA.2" | is.na(LineageBroad))
+
+## Because things like e.g., vaccination status can change partway through an infection, we need to re-create the categories using the category at the time of detection, not at the time of observation.
+tmp1 <- dat %>% group_by(PersonID, CumulativeInfectionNumber) %>% mutate(x = abs(DaysSinceDetection)) %>% filter(x == min(x)) %>%
+    select(-c(x, DaysSinceDetection, TestDate, TestResult, CtT1, CtT2, DaysSinceNegative, LastNegative, TimeRelToPeak,NewInfectionIdentified))
+tmp2 <- dat %>% select(PersonID, CumulativeInfectionNumber, DaysSinceDetection,TestDate, TestResult, CtT1, CtT2, DaysSinceNegative, LastNegative, TimeRelToPeak,NewInfectionIdentified)
+dat1 <- left_join(tmp2, tmp1) %>% ungroup()
 
 ## RAW DATA NUMBERS
 dat %>% group_by(PersonID) %>% filter(CumulativeInfectionNumber == max(CumulativeInfectionNumber)) %>% select(PersonID, CumulativeInfectionNumber) %>% distinct()  %>% group_by(CumulativeInfectionNumber) %>% tally()
