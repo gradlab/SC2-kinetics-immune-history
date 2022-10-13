@@ -24,3 +24,9 @@ outputs/immune_models/days_since_exposure_and_lineage_1.RData
 outputs/immune_models/days_since_exposure_and_lineage_2.RData
 outputs/immune_models/vaccine_and_lineage_1.RData
 outputs/immune_models/vaccine_and_lineage_2.RData
+outputs/immune_models/cumulative_exposures_and_lineage_1.RData
+outputs/immune_models/cumulative_exposures_and_lineage_2.RData
+outputs/immune_models/days_since_exposure_and_lineage_1.RData
+outputs/immune_models/days_since_exposure_and_lineage_2.RData
+outputs/immune_models/vaccine_and_lineage_1.RData
+outputs/immune_models/vaccine_and_lineage_2.RData
