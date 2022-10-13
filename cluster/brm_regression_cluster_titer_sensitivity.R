@@ -94,7 +94,7 @@ performance(prediction(pred$Estimate, pull(fit$data, low_ct1)),measure="auc")@y.
 
 print(availableCores())
 plan(multicore)
-kfold_est <- kfold(fit, chains=1, K=25, save_fits=TRUE)
+kfold_est <- kfold(fit, chains=1, K=25)
 save(kfold_est, file=paste0("outputs/titer_models_sensitivity/",filename,"_kfolds",".RData"))
 
 #loo_est <- loo(fit,reloo=TRUE,chains=1)

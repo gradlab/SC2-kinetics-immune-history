@@ -7,7 +7,6 @@ library(data.table)
 library(patchwork)
 
 setwd("~/Documents/GitHub/SC2-kinetics-immune-history/")
-
 lineage_colors <- c("Delta"="red3","Omicron"="blue","Other"="black","None"="grey70")
 
 ## Set to FALSE if you have the original data files
@@ -23,9 +22,8 @@ tmp1 <- dat %>% group_by(PersonID, CumulativeInfectionNumber) %>% mutate(x = abs
 tmp2 <- dat %>% select(PersonID, CumulativeInfectionNumber, DaysSinceDetection,TestDate, TestResult, CtT1, CtT2, DaysSinceNegative, LastNegative, TimeRelToPeak,NewInfectionIdentified)
 dat <- left_join(tmp2, tmp1) %>% ungroup()
 
-
 ## Number of individuals
-bind_rows(dat, repeat_dat) %>% select(PersonID) %>% distinct() %>% nrow()
+dat %>% select(PersonID) %>% distinct() %>% nrow()
 
 ## Number of tests
 bind_rows(dat, repeat_dat) %>% filter(TestResult %in% c("Negative","Inconclusive","Positive")) %>% group_by(TestResult) %>% tally()
