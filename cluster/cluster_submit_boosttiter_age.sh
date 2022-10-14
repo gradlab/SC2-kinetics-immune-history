@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -J brm_reg_boosttiter
+#SBATCH -J brm_reg_boosttiter_age
 #SBATCH -n 25               # Number of cores (-n)
 #SBATCH -N 1                # Ensure that all cores are on one Node (-N)
 #SBATCH -t 0-24:00          # Runtime in D-HH:MM, minimum of 10 minutes
