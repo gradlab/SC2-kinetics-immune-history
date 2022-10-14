@@ -513,6 +513,7 @@ dat_subset_use <- dat_subset %>%
            LineageBroad_DaysSinceExposureGroup,
            LineageBroad_TiterGroup,
            LineageBroad_TiterGroupAlt,
+           LineageBroad_VaccStatus_AgeGroup,
            BoostTiterGroup,
            BoostTiterGroupAlt,
            LineageBroad_BoostTiterGroup,
