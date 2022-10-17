@@ -239,7 +239,6 @@ vacclineage_freq_res
 vacclineage_infreq_res
 
 ggsave(filename="figures/supplement/baseline_regression.png",plot=p_base,width=6,height=3,dpi=300)
-ggsave(filename="figures/supplement/lineage_regression.png",plot=p_lineage,width=8,height=3,dpi=300)
 ggsave(filename="figures/supplement/vacclineage_regression.png",plot=p_vacclineage,width=8,height=3,dpi=300)
 ggsave(filename="figures/supplement/vacclineage_regression_all.png",plot=p_vacclineage_all,width=8,height=8,dpi=300)
 

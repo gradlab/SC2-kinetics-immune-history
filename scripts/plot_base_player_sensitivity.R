@@ -27,24 +27,19 @@ names(colors) <- c("Other","Delta1","Delta2","Omicron1","Omicron2")
 setwd("~/Documents/GitHub/SC2-kinetics-immune-history/")
 
 load("~/Documents/GitHub/ct_nba/data/data_for_regressions.RData")
-dat_subset_use <- dat_subset_use %>% filter(DaysSinceDetection >= 0)
+dat_subset_use <- dat_subset_use %>% filter(DaysSinceDetection >= 0) %>% ungroup()
 
 ## Read in the two baseline regressions
-load("outputs/player_sensitivity/baseline_1.rdata")
+load("outputs/immune_models_nonplayers/baseline_1.rdata")
 basemodel_freq <- fit
-load("outputs/player_sensitivity/baseline_2.rdata")
+load("outputs/immune_models_nonplayers/baseline_2.rdata")
 basemodel_infreq <- fit
 
-## Read in the two Lineage status regressions
-load("outputs/player_sensitivity/lineage_1.rdata")
-lineagemodel_freq <- fit
-load("outputs/player_sensitivity/lineage_2.rdata")
-lineagemodel_infreq <- fit
-
+## Read in the two Lineage status 
 ## Read in the vaccine status and lineage regressions
-load("outputs/player_sensitivity/vaccine_and_lineage_1.rdata")
+load("outputs/immune_models_nonplayers/vaccine_and_lineage_1.rdata")
 vacclineagemodel_freq <- fit
-load("outputs/player_sensitivity/vaccine_and_lineage_2.rdata")
+load("outputs/immune_models_nonplayers/vaccine_and_lineage_2.rdata")
 vacclineagemodel_infreq <- fit
 
 
