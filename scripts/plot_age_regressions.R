@@ -31,15 +31,15 @@ load("data/data_for_regressions.RData")
 dat_subset_use <- dat_subset_use %>% filter(DaysSinceDetection >= 0)
 
 ## Read in the two baseline regressions
-load("outputs/base_age_models/baseline_age_1.rdata")
+load("outputs/immune_models/baseline_age_1.rdata")
 basemodel_freq <- fit
-load("outputs/base_age_models/baseline_age_2.rdata")
+load("outputs/immune_models/baseline_age_2.rdata")
 basemodel_infreq <- fit
 
 ## Read in the vaccine status and lineage regressions
-load("outputs/base_age_models/vaccine_and_lineage_age_1.rdata")
+load("outputs/immune_models/vaccine_and_lineage_age_1.rdata")
 vacclineagemodel_freq <- fit
-load("outputs/base_age_models/vaccine_and_lineage_age_2.rdata")
+load("outputs/immune_models/vaccine_and_lineage_age_2.rdata")
 vacclineagemodel_infreq <- fit
 
 
@@ -233,6 +233,8 @@ fit2 <- fit
 newdata <- expand_grid(DaysSinceDetection=seq(0,20,by=0.1), LineageBroad_BoostTiterGroup=unique(fit1$data$LineageBroad_BoostTiterGroup),
                        AgeGroup=unique(fit1$data$AgeGroup))
 titer_freq_draws <- fit1 %>% epred_draws(newdata=newdata)
+newdata <- expand_grid(DaysSinceDetection=seq(0,20,by=0.1), LineageBroad_BoostTiterGroup=unique(fit2$data$LineageBroad_BoostTiterGroup),
+                       AgeGroup=unique(fit2$data$AgeGroup))
 titer_infreq_draws <- fit2 %>% epred_draws(newdata=newdata)
 
 
@@ -244,7 +246,7 @@ titer_p_dat <- bind_rows(titer_freq_draws %>% mutate(Protocol="Frequent testing"
   mutate(LineageBroad = ifelse(LineageBroad_BoostTiterGroup %like% "Other","Other",
                                ifelse(LineageBroad_BoostTiterGroup %like% "Delta","Delta","Omicron")))
 
-titer_p_dat$Protocol <- factor(vacclineage_p_dat$Protocol,levels=c("Frequent testing","Delayed detection"))
+titer_p_dat$Protocol <- factor(titer_p_dat$Protocol,levels=c("Frequent testing","Delayed detection"))
 
 tmp_dat1 <- titer_p_dat %>% filter(LineageBroad == "Omicron") 
 

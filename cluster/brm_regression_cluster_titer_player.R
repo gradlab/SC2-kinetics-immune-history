@@ -24,7 +24,7 @@ load("~/ct_data/data/data_for_regressions_player_new.RData")
 
 
 ## For these analyses, we only want to use Ct values after detection
-dat_subset_use <- dat_subset_use %>% filter(DaysSinceDetection >= 0)
+dat_subset_use <- dat_subset_use %>% filter(DaysSinceDetection >= 0) %>% ungroup()
 
 ## Not players
 dat_subset_use <- dat_subset_use %>% filter(Role != "Player")
@@ -33,7 +33,6 @@ filename_base <- paste0("outputs/titer_models_nonplayers")
 if(!file.exists(filename_base)) dir.create(filename_base)
 
 ## 48 options
-#i <- 3
 i <- as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID'))
 print(i)
 

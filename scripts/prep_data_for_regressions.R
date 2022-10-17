@@ -13,6 +13,8 @@ library(patchwork)
 colors <- c("black","tomato","red3","dodgerblue","blue")
 names(colors) <- c("Other","Delta1","Delta2","Omicron1","Omicron2")
 
+nonplayers <- TRUE
+
 setwd("~/Documents/GitHub/SC2-kinetics-immune-history/")
 savewd <- getwd()
 ## Ct threshold to count as "low"
@@ -22,7 +24,11 @@ high_threshold <- 250
 
 # Clean data --------------------------------------------------------------
 ## Read in cleaned data
-dat <- read_csv("data/ct_data_cleaned.csv")
+if(nonplayers){
+    dat <- read_csv("~/Documents/GitHub/ct_nba/data/ct_data_cleaned_nonplayers.csv")
+} else {
+    dat <- read_csv("data/ct_data_cleaned.csv")
+}
 
 ## Remove BA.2
 dat <- dat %>% filter(LineageBroad != "BA.2" | is.na(LineageBroad))
@@ -138,8 +144,10 @@ p_titers1 <- ggplot(data=dat_titer_tmp_summ) +
     coord_flip() +
     labs(tag="C")
 
-save(p_titer_hists,file="plots/titer_plot_hists.RData")
-save(p_titers1,file="plots/titer_plot.RData")
+if(!nonplayers){
+    save(p_titer_hists,file="plots/titer_plot_hists.RData")
+    save(p_titers1,file="plots/titer_plot.RData")
+}
 
 ## Stratify by symptom status
 dat_titer_tmp_summ1 <- dat_titer_tmp %>% group_by(category,Symp_Ever) %>% 
@@ -306,8 +314,10 @@ p2 <- ggplot(dat_peak %>% filter(!is.na(Delay),LineageBroad !="None")) +
         legend.title=element_text(size=8),legend.text=element_text(size=8),
         strip.background = element_blank(),strip.text=element_text(face="bold"))
 
-ggsave("figures/supplement/incubation_period_detection.png",p1,height=6,width=8,units="in",dpi=300)
-ggsave("figures/supplement/incubation_period_peak.png",p2,height=6,width=8,units="in",dpi=300)
+if(!nonplayers){
+    ggsave("figures/supplement/incubation_period_detection.png",p1,height=6,width=8,units="in",dpi=300)
+    ggsave("figures/supplement/incubation_period_peak.png",p2,height=6,width=8,units="in",dpi=300)
+}
 
 ## More symptomatics in delayed detection
 ## Yes, slightly higher proportion
@@ -530,10 +540,11 @@ dat_subset_use %>% select(PersonID, TiterGroup) %>% ungroup() %>% distinct() %>%
 dat_subset_use %>% select(PersonID, BoostTiterGroup, LineageBroad) %>% ungroup() %>% distinct() %>% group_by(BoostTiterGroup,LineageBroad) %>% tally()
 dat_subset_use %>% select(PersonID, VaccStatus, LineageBroad) %>% ungroup() %>% distinct() %>% group_by(VaccStatus,LineageBroad) %>% tally()
 
-
-save(p_traj,file="plots/traj_plot.RData")
-ggsave(filename="figures/all_trajectories.png",p_traj,height=8,width=8,units="in",dpi=300)
-ggsave(filename="figures/all_trajectories.pdf",p_traj,height=8,width=8)
+if(!nonplayers){
+    save(p_traj,file="plots/traj_plot.RData")
+    ggsave(filename="figures/all_trajectories.png",p_traj,height=8,width=8,units="in",dpi=300)
+    ggsave(filename="figures/all_trajectories.pdf",p_traj,height=8,width=8)
+}
 
 dat_subset_use %>% filter(!is.na(BoostTiterGroup)) %>%group_by(DaysSinceDetection,BoostTiterGroup,DetectionSpeed) %>% 
     summarize(mean_ct=mean(CtT1)) %>% ggplot() + geom_line(aes(x=DaysSinceDetection,y=mean_ct,col=BoostTiterGroup)) + facet_wrap(~DetectionSpeed) + scale_y_continuous(trans="reverse") + 
@@ -543,7 +554,11 @@ dat_subset_use %>% group_by(DaysSinceDetection,DetectionSpeed,LineageBroad) %>%
     summarize(mean_ct=mean(CtT1)) %>% ggplot() + geom_line(aes(x=DaysSinceDetection,y=mean_ct,col=LineageBroad)) + facet_wrap(~DetectionSpeed) + scale_y_continuous(trans="reverse") + 
     scale_x_continuous(limits=c(-3,5))
 
-save(dat_subset_use, file="data/data_for_regressions.RData")
+if(!nonplayers){
+    save(dat_subset_use, file="data/data_for_regressions.RData")
+} else {
+    save(dat_subset_use, file="~/Documents/GitHub/ct_nba/data/data_for_regressions_nonplayers.RData")
+}
 
 tmp <- dat_subset %>% left_join(dat_subset %>% 
                                     select(PersonID, CumulativeInfectionNumber,LineageBroad, DetectionSpeed) %>%
@@ -702,5 +717,6 @@ p2 <- dat_subset_use %>%
 
 p_boost_infn <- p1 | p2
 p_boost_infn
-
-ggsave(paste0(savewd,"/figures/supplement/boost_infn.png"),p_boost_infn,height=5,width=12,units="in",dpi=300)
+if(!nonplayers){
+    ggsave(paste0(savewd,"/figures/supplement/boost_infn.png"),p_boost_infn,height=5,width=12,units="in",dpi=300)
+}

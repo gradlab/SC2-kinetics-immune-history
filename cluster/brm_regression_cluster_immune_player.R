@@ -24,7 +24,7 @@ load("~/ct_data/data/data_for_regressions_player_new.RData")
 
 
 ## For these analyses, we only want to use Ct values after detection
-dat_subset_use <- dat_subset_use %>% filter(DaysSinceDetection >= 0)
+dat_subset_use <- dat_subset_use %>% filter(DaysSinceDetection >= 0) %>% ungroup()
 
 ## Not players
 dat_subset_use <- dat_subset_use %>% filter(Role != "Player")

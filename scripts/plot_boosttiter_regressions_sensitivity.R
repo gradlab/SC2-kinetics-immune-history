@@ -27,7 +27,7 @@ print_classification_accuracy <- function(fit){
 }
 
 load("data/data_for_regressions.RData")
-dat_subset_use <- dat_subset_use %>% filter(DaysSinceDetection >= 0)
+dat_subset_use <- dat_subset_use %>% filter(DaysSinceDetection >= 0) %>% ungroup()
 
 filename_base <- paste0("outputs/titer_models_sensitivity")
 if(!file.exists(filename_base)) dir.create(filename_base)
@@ -39,21 +39,7 @@ print(i)
 
 formulas <- list(
     bf(low_ct1 ~ BoostTiterGroup + s(DaysSinceDetection) + s(DaysSinceDetection,by=BoostTiterGroup)),
-    bf(low_ct1 ~ BoostTiterGroupAlt + s(DaysSinceDetection) + s(DaysSinceDetection,by=BoostTiterGroupAlt)),
-    bf(low_ct1 ~ LineageBroad_BoostTiterGroup + s(DaysSinceDetection) + s(DaysSinceDetection,by=LineageBroad_BoostTiterGroup)),
-    bf(low_ct1 ~ LineageBroad_BoostTiterGroupAlt + s(DaysSinceDetection) + s(DaysSinceDetection,by=LineageBroad_BoostTiterGroupAlt)),
-    
-    bf(low_ct1 ~ LineageBroad*BoostTiterGroup + 
-           s(DaysSinceDetection) + 
-           s(DaysSinceDetection,by=BoostTiterGroup) + 
-           s(DaysSinceDetection,by=LineageBroad) +
-           s(DaysSinceDetection,by=LineageBroad_BoostTiterGroup)),
-    
-    bf(low_ct1 ~ LineageBroad*BoostTiterGroupAlt + 
-           s(DaysSinceDetection) + 
-           s(DaysSinceDetection,by=BoostTiterGroupAlt) + 
-           s(DaysSinceDetection,by=LineageBroad) +
-           s(DaysSinceDetection,by=LineageBroad_BoostTiterGroupAlt))
+    bf(low_ct1 ~ LineageBroad_BoostTiterGroup + s(DaysSinceDetection) + s(DaysSinceDetection,by=LineageBroad_BoostTiterGroup))
 )
 
 names <- expand_grid(time=c("all","under60","under90","60to90"),freq=c("freq","infreq"),model=seq_along(formulas))
@@ -70,7 +56,7 @@ newdata_all$LineageBroad_BoostTiterGroup <- paste0(newdata_all$LineageBroad,"_",
 
 names_tmp <- names
 
-names <- names[c(3, 9),]
+names <- names[c(2, 4),]
 #names <- names[c(39, 45),]
 
 
@@ -137,7 +123,7 @@ convert_to_lineage_and_titer <- function(dat){
     dat
 }
 
-plot_models <- which(names$model %in% c(3,4))
+plot_models <- which(names$model %in% c(2))
 all_plots <- NULL
 setwd("~/Documents/GitHub/SC2-kinetics-immune-history//")
 
@@ -158,7 +144,7 @@ for(i in seq_along(plot_models)){
                             ifelse(use_timerange=="under60","Within 60 days of draw",
                              ifelse(use_timerange=="under90","Within 90 days of draw","60 to 90 days after draw")))
     
-    use_model <- ifelse(use_model == 3,"250 threshold","400 threshold")
+    use_model <- "250 threshold"
     
     title <- paste(use_data, use_timerange,use_model,sep="; ")
     if(use_model == "250 threshold"){
