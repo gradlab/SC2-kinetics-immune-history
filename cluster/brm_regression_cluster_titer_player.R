@@ -20,14 +20,12 @@ setwd("~/SC2-kinetics-immune-history/")
 
 n_iter <- 2000
 rerun_stan <- TRUE
-load("~/ct_data/data/data_for_regressions_player_new.RData")
+load("~/ct_data/data/data_for_regressions_nonplayers.RData")
 
 
 ## For these analyses, we only want to use Ct values after detection
 dat_subset_use <- dat_subset_use %>% filter(DaysSinceDetection >= 0) %>% ungroup()
-
-## Not players
-dat_subset_use <- dat_subset_use %>% filter(Role != "Player")
+print(nrow(dat_subset_use))
 
 filename_base <- paste0("outputs/titer_models_nonplayers")
 if(!file.exists(filename_base)) dir.create(filename_base)
@@ -37,25 +35,20 @@ i <- as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID'))
 print(i)
 
 formulas <- list(
-    bf(low_ct1 ~ BoostTiterGroup + s(DaysSinceDetection) + s(DaysSinceDetection,by=BoostTiterGroup)),
-    bf(low_ct1 ~ BoostTiterGroupAlt + s(DaysSinceDetection) + s(DaysSinceDetection,by=BoostTiterGroupAlt)),
     bf(low_ct1 ~ LineageBroad_BoostTiterGroup + s(DaysSinceDetection) + s(DaysSinceDetection,by=LineageBroad_BoostTiterGroup)),
-    bf(low_ct1 ~ LineageBroad_BoostTiterGroupAlt + s(DaysSinceDetection) + s(DaysSinceDetection,by=LineageBroad_BoostTiterGroupAlt)),
     
-    bf(low_ct1 ~ LineageBroad*BoostTiterGroup + 
+    bf(low_ct1 ~ LineageBroad_BoostTiterGroup*AgeGroup + 
            s(DaysSinceDetection) + 
-           s(DaysSinceDetection,by=BoostTiterGroup) + 
-           s(DaysSinceDetection,by=LineageBroad) +
-           s(DaysSinceDetection,by=interaction(LineageBroad,BoostTiterGroup))),
+           s(DaysSinceDetection,by=AgeGroup) + 
+           s(DaysSinceDetection,by=LineageBroad_BoostTiterGroup)),
     
-    bf(low_ct1 ~ LineageBroad*BoostTiterGroupAlt + 
+    bf(low_ct1 ~ LineageBroad_VaccStatus_AgeGroup + 
            s(DaysSinceDetection) + 
-           s(DaysSinceDetection,by=BoostTiterGroupAlt) + 
-           s(DaysSinceDetection,by=LineageBroad) +
-           s(DaysSinceDetection,by=interaction(LineageBroad,BoostTiterGroupAlt)))
+           s(DaysSinceDetection,by=LineageBroad_VaccStatus_AgeGroup))
+    
 )
 
-names <- expand_grid(time=c("all","under60","under90","60to90"),freq=c("freq","infreq"),model=seq_along(formulas))
+names <- expand_grid(time=c("all"),freq=c("freq","infreq"),model=seq_along(formulas))
 names <- names %>% mutate(name=paste(time,freq,model,sep="_"))
 
 filename <- names$name[i]
@@ -100,10 +93,10 @@ dplyr::bind_cols(fit$data, pred) %>% mutate(correct= pos == low_ct1) %>% group_b
     summarize(`Proportion correct`=sum(correct)/n()) %>% rename(`Ct<30`=low_ct1)
 performance(prediction(pred$Estimate, pull(fit$data, low_ct1)),measure="auc")@y.values[[1]]
 
-print(availableCores())
-plan(multicore)
-kfold_est <- kfold(fit, chains=1, K=25)
-save(kfold_est, file=paste0("outputs/titer_models_nonplayers/",filename,"_kfolds",".RData"))
+#print(availableCores())
+#plan(multicore)
+#kfold_est <- kfold(fit, chains=1, K=25)
+#save(kfold_est, file=paste0("outputs/titer_models_nonplayers/",filename,"_kfolds",".RData"))
 
 #loo_est <- loo(fit,reloo=TRUE,chains=1)
 #save(loo_est, file=paste0(name,"_",use_data,"_loo_",i,".RData"))
