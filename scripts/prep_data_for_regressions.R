@@ -13,7 +13,7 @@ library(patchwork)
 colors <- c("black","tomato","red3","dodgerblue","blue")
 names(colors) <- c("Other","Delta1","Delta2","Omicron1","Omicron2")
 
-nonplayers <- TRUE
+nonplayers <- FALSE
 
 setwd("~/Documents/GitHub/SC2-kinetics-immune-history/")
 savewd <- getwd()
@@ -126,10 +126,12 @@ p_titers1 <- ggplot(data=dat_titer_tmp_summ) +
     geom_beeswarm(data=dat_titer_tmp%>% mutate(Titer1 = ifelse(Titer == 800, Titer + rnorm(n(),0,5),Titer)),
                   aes(x=Titer1,y=as.numeric(category),fill=category,col=category),groupOnX=FALSE,cex=0.5,size=0.75,alpha=0.5) +
     geom_text(aes(y=as.numeric(category)+0.25,x=titer_mean + 70,label=label),size=2.2)+
-    geom_point(aes(y=as.numeric(category), x=titer_mean),size=3) + 
-    geom_segment(aes(y=as.numeric(category), yend=as.numeric(category), x=titer_lwr, xend=titer_upr)) + 
-    geom_segment(aes(y=as.numeric(category)-0.2, yend=as.numeric(category)+0.2, x=titer_lwr, xend=titer_lwr)) + 
-    geom_segment(aes(y=as.numeric(category)-0.2, yend=as.numeric(category)+0.2, x=titer_upr, xend=titer_upr)) + 
+    #geom_point(aes(y=as.numeric(category), x=titer_mean),size=3) +
+    geom_segment(aes(y=as.numeric(category)-0.2,yend=as.numeric(category)+0.2, x=titer_mean,xend=titer_mean,
+                     col=category)) + 
+    #geom_segment(aes(y=as.numeric(category), yend=as.numeric(category), x=titer_lwr, xend=titer_upr)) + 
+    #geom_segment(aes(y=as.numeric(category)-0.2, yend=as.numeric(category)+0.2, x=titer_lwr, xend=titer_lwr)) + 
+    #geom_segment(aes(y=as.numeric(category)-0.2, yend=as.numeric(category)+0.2, x=titer_upr, xend=titer_upr)) + 
     theme_classic() +
     #geom_jitter(data=dat_titer_tmp%>% mutate(Titer1 = ifelse(Titer == 800, Titer + rnorm(n(),0,5),Titer)),
     #           aes(x=Titer1,y=as.numeric(category),fill=category,col=category),width=0,height=0.25)
@@ -335,7 +337,7 @@ dimnames(to_test) <- list(DetectionSpeed=c("Delayed","Frequent"),SymptomStatus=c
 chisq.test(to_test)
 
 # Plot raw trajectories ---------------------------------------------------
-## Remove any other unknown lineages, removing 291 "None" infections
+## Remove any other unknown lineages, removing 490 "None" infections
 dat <- dat %>% filter(LineageBroad != "None")
 dat$LineageBroad <- factor(dat$LineageBroad, levels=c("Other","Delta","Omicron"))
 dat %>% filter(NewInfectionIdentified==1) %>% group_by(LineageBroad) %>% tally()

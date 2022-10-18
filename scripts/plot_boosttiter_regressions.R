@@ -25,7 +25,7 @@ print_classification_accuracy <- function(fit){
     return(list(overall_correct, correct_by_group, auc))
 }
 
-supplementS10 <- TRUE
+supplementS14 <- TRUE
 
 load("data/data_for_regressions.RData")
 dat_subset_use <- dat_subset_use %>% filter(DaysSinceDetection >= 0) %>% ungroup()
@@ -52,7 +52,7 @@ newdata_all$LineageBroad_BoostTiterGroup <- paste0(newdata_all$LineageBroad,"_",
 
 names_tmp <- names
 
-if(supplementS10){
+if(supplementS14){
     names <- names[c(14,16),]
 } else {
     
@@ -171,7 +171,7 @@ dat_subset_use %>% select(PersonID, LineageBroad,VaccStatus,DetectionSpeed) %>%
     mutate(VaccStatus1 = ifelse(VaccStatus == "Boosted","Boosted","Not boosted")) %>%
     distinct() %>% group_by(LineageBroad,VaccStatus1,DetectionSpeed) %>% tally()
 
-if(!supplementS10){
+if(!supplementS14){
     samp_sizes <- dat_subset_use %>% select(PersonID, LineageBroad,BoostTiterGroup,DetectionSpeed) %>% distinct() %>% group_by(LineageBroad,BoostTiterGroup,DetectionSpeed) %>% tally() %>% drop_na() %>%
         rename(`Detection group` = DetectionSpeed) %>%
         mutate(label=paste0("N=",n)) %>%
@@ -197,7 +197,7 @@ if(!supplementS10){
     samp_sizes$`Detection group` <- factor(samp_sizes$`Detection group`, levels=c("Frequent testing","Delayed detection"))
     
     
-    figS12 <- all_dat %>% drop_na() %>% ggplot() + 
+    figS13 <- all_dat %>% drop_na() %>% ggplot() + 
         geom_ribbon(aes(x=DaysSinceDetection,ymin=lower__,ymax=upper__,fill=BoostTiterGroup),alpha=0.25) +
         geom_line(aes(x=DaysSinceDetection,y=estimate__,col=BoostTiterGroup)) +
         geom_text(data=samp_sizes,aes(x=22, y=y,label=label,col=BoostTiterGroup),show.legend = FALSE) +
@@ -217,10 +217,10 @@ if(!supplementS10){
         facet_grid(LineageBroad~`Detection group`)
     
     
-    ggsave(filename="figures/supplement/figS12.png",plot=figS12,width=8,height=7,dpi=300)
-    ggsave(filename="figures/supplement/figS12.pdf",plot=figS12,width=8,height=7)
+    ggsave(filename="figures/supplement/figS13.png",plot=figS12,width=8,height=7,dpi=300)
+    ggsave(filename="figures/supplement/figS13.pdf",plot=figS12,width=8,height=7)
 } else {
-    all_dat1 <- read_csv("figures/supplement_titer/figS13_data.csv")
+    all_dat1 <- read_csv("figures/supplement_titer/figS14_data.csv")
     all_dat1$Analysis <- "Titers 100-200 days following previous exposure"
     all_dat$Analysis <- "Infections 60-90 days following titer measurement"
     all_dat1$`Detection group` <- factor(all_dat1$`Detection group`, levels=c("Frequent testing","Delayed detection"))
@@ -255,7 +255,7 @@ if(!supplementS10){
     
     samp_sizesA$`Detection group` <- factor(samp_sizesA$`Detection group`, levels=c("Frequent testing","Delayed detection"))
     
-    figS13A <- all_dat %>% drop_na() %>% 
+    figS14A <- all_dat %>% drop_na() %>% 
         filter(LineageBroad == "Omicron") %>%
         ggplot() + 
         geom_ribbon(aes(x=DaysSinceDetection,ymin=lower__,ymax=upper__,fill=BoostTiterGroup),alpha=0.25) +
@@ -296,7 +296,7 @@ if(!supplementS10){
     samp_sizesB$`Detection group` <- factor(samp_sizesB$`Detection group`, levels=c("Frequent testing","Delayed detection"))
     
     
-    figS13B <- all_dat1 %>% drop_na() %>% 
+    figS14B <- all_dat1 %>% drop_na() %>% 
         filter(LineageBroad == "Omicron") %>%
         ggplot() + 
         geom_ribbon(aes(x=DaysSinceDetection,ymin=lower__,ymax=upper__,fill=BoostTiterGroup),alpha=0.25) +
@@ -319,6 +319,60 @@ if(!supplementS10){
         labs(tag="B")
     
     
-    ggsave(filename="figures/supplement/figS13.png",plot=figS13A/figS13B,width=8,height=6,dpi=300)
-    ggsave(filename="figures/supplement/figS13.pdf",plot=figS13A/figS13B,width=8,height=6)
+    ggsave(filename="figures/supplement/figS14.png",plot=figS14A/figS14B,width=8,height=6,dpi=300)
+    ggsave(filename="figures/supplement/figS14.pdf",plot=figS14A/figS14B,width=8,height=6)
 }
+
+
+
+used_dat <- read_csv("plots/boost_lineage_regression.csv")
+tmp_dat1 <- used_dat %>% filter(LineageBroad == "Omicron")
+
+boosttitergroup_key <- c("Boosted: >250 AU/ml" = "Omicron: Boosted >250 AU/ml",
+                         "Boosted: ≤250 AU/ml" = "Omicron: Boosted ≤250 AU/ml",
+                         "Not Boosted: >250 AU/ml"="Omicron: Not Boosted >250 AU/ml",
+                         "Not Boosted: ≤250 AU/ml"="Omicron: Not Boosted ≤250 AU/ml")
+tmp_dat1$`Immune status` <- boosttitergroup_key[tmp_dat1$BoostTiterGroup]
+tmp_dat1$`Detection group` <- factor(tmp_dat1$`Detection group`, levels=c("Frequent testing","Delayed detection"))
+tmp_dat1$`Immune status` <- factor(tmp_dat1$`Immune status`, levels=c("Omicron: Boosted ≤250 AU/ml","Omicron: Boosted >250 AU/ml",
+                                                                      "Omicron: Not Boosted ≤250 AU/ml","Omicron: Not Boosted >250 AU/ml"))
+save(p_vacclineage,file="plots/p_vacclineage.RData")
+
+
+p <-  ggplot(data=tmp_dat1,
+             aes(x=DaysSinceDetection,ymin=lower__,ymax=upper__,
+                 fill=`Immune status`,y=estimate__),col="None") +
+    facet_wrap(~`Detection group`) +
+    geom_ribbon(alpha=0.5) +
+    geom_line(aes(col=`Immune status`))+
+    scale_y_continuous(limits=c(0,1),expand=c(0,0), breaks=seq(0,1,by=0.2)) +
+    scale_x_continuous(limits=c(0,25),breaks=seq(0,25,by=5)) +
+    labs(y="Probability of Ct value <30",x="Days since detection",fill="Immune status",color="Immune status") +
+    theme_classic() +
+    geom_vline(xintercept=5,linetype="dashed") +
+    geom_hline(yintercept=0.05,linetype="dashed") +
+    scale_color_viridis_d(option="D") +
+    scale_fill_viridis_d(option="D") +
+    theme(legend.position=c(0.85,0.75),
+          strip.background=element_blank(),
+          strip.text=element_blank(),
+          axis.text=element_text(size=8),axis.title=element_text(size=8),
+          legend.title=element_text(size=6),legend.text=element_text(size=6),
+          plot.background = element_rect(fill="white",color="white"))
+p1 <- (p_vacclineage + labs(tag="A") + theme(axis.text.x=element_blank(),axis.title.x=element_blank(),
+                                             axis.ticks.x = element_blank(),
+                                             axis.line.x=element_blank(),plot.tag=element_text(face="bold")))
+
+p2 <- (p + labs(tag="B") + theme(plot.tag=element_text(face="bold")))
+load(file="plots/titer_plot.RData")
+load(file="plots/titer_plot_hists.RData")
+p_titers1 <- p_titers1 + xlab("Antibody titer (AU/ml") + theme(axis.title.y=element_text(size=8,angle=90,vjust=1.5))
+p_titers1
+fig2 <- (p_titers1/p2)
+fig2
+
+
+
+ggsave(filename="figures/figure2.png",plot=fig2,width=8,height=5,dpi=300)
+ggsave(filename="figures/figure2.pdf",plot=fig2,width=8,height=5)
+ggsave(filename="figures/figure2_back.pdf",plot=p_titer_hists,width=5,height=2.5)

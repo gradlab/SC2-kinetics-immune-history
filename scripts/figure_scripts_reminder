@@ -1,0 +1,7 @@
+Figure 1
+    Run "prep_data_for_regressions.R" and "raw_data.R", then finally "rebounds.R"
+
+Figure 2
+    This shows the results of the vaccination status, age and lineage fit. Run "plot_immune_regressions.R" to generate Table S3&4. Also run "plot_age_regressions.R", which will generate Figure 2. Run "plot_base_regressions.R" to generate Figure S6.
+    
+

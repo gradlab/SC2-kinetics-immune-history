@@ -197,7 +197,7 @@ samp_sizes <- dat_subset_use %>% ungroup() %>% select(PersonID, VaccStatus,Linea
 vacclineage_p_dat$Protocol <- factor(vacclineage_p_dat$Protocol, levels=c("Frequent testing","Delayed detection"))
 samp_sizes$Protocol <- factor(samp_sizes$Protocol, levels=c("Frequent testing","Delayed detection"))
 p_vacclineage_all <-  ggplot(vacclineage_p_dat %>% 
-                                 filter(AgeGroup == "(30,50]") %>%
+                                 filter(AgeGroup == "(0,30]") %>%
                                mutate(
                                  VaccStatusLineage = paste0(LineageBroad, ": ", VaccStatus)),col="None") +
     facet_grid(LineageBroad~Protocol) +
@@ -241,58 +241,6 @@ vacclineage_infreq_res
 ggsave(filename="figures/supplement/baseline_regression.png",plot=p_base,width=6,height=3,dpi=300)
 ggsave(filename="figures/supplement/vacclineage_regression.png",plot=p_vacclineage,width=8,height=3,dpi=300)
 ggsave(filename="figures/supplement/vacclineage_regression_all.png",plot=p_vacclineage_all,width=8,height=8,dpi=300)
-
-used_dat <- read_csv("plots/boost_lineage_regression.csv")
-tmp_dat1 <- used_dat %>% filter(LineageBroad == "Omicron")
-
-boosttitergroup_key <- c("Boosted: >250 AU/ml" = "Omicron: Boosted >250 AU/ml",
-                         "Boosted: ≤250 AU/ml" = "Omicron: Boosted ≤250 AU/ml",
-                         "Not Boosted: >250 AU/ml"="Omicron: Not Boosted >250 AU/ml",
-                         "Not Boosted: ≤250 AU/ml"="Omicron: Not Boosted ≤250 AU/ml")
-tmp_dat1$`Immune status` <- boosttitergroup_key[tmp_dat1$BoostTiterGroup]
-tmp_dat1$`Detection group` <- factor(tmp_dat1$`Detection group`, levels=c("Frequent testing","Delayed detection"))
-tmp_dat1$`Immune status` <- factor(tmp_dat1$`Immune status`, levels=c("Omicron: Boosted ≤250 AU/ml","Omicron: Boosted >250 AU/ml",
-                                                                      "Omicron: Not Boosted ≤250 AU/ml","Omicron: Not Boosted >250 AU/ml"))
-save(p_vacclineage,file="plots/p_vacclineage.RData")
-
-
-p <-  ggplot(data=tmp_dat1,
-             aes(x=DaysSinceDetection,ymin=lower__,ymax=upper__,
-                 fill=`Immune status`,y=estimate__),col="None") +
-    facet_wrap(~`Detection group`) +
-    geom_ribbon(alpha=0.5) +
-    geom_line(aes(col=`Immune status`))+
-    scale_y_continuous(limits=c(0,1),expand=c(0,0), breaks=seq(0,1,by=0.2)) +
-    scale_x_continuous(limits=c(0,25),breaks=seq(0,25,by=5)) +
-    labs(y="Probability of Ct value <30",x="Days since detection",fill="Immune status",color="Immune status") +
-    theme_classic() +
-    geom_vline(xintercept=5,linetype="dashed") +
-    geom_hline(yintercept=0.05,linetype="dashed") +
-    scale_color_viridis_d(option="D") +
-    scale_fill_viridis_d(option="D") +
-    theme(legend.position=c(0.85,0.75),
-          strip.background=element_blank(),
-          strip.text=element_blank(),
-          axis.text=element_text(size=8),axis.title=element_text(size=8),
-          legend.title=element_text(size=6),legend.text=element_text(size=6),
-          plot.background = element_rect(fill="white",color="white"))
-p1 <- (p_vacclineage + labs(tag="A") + theme(axis.text.x=element_blank(),axis.title.x=element_blank(),
-                                               axis.ticks.x = element_blank(),
-                                               axis.line.x=element_blank(),plot.tag=element_text(face="bold")))
-
-p2 <- (p + labs(tag="B") + theme(plot.tag=element_text(face="bold")))
-load(file="plots/titer_plot.RData")
-load(file="plots/titer_plot_hists.RData")
-p_titers1 <- p_titers1 + xlab("Antibody titer (AU/ml") + theme(axis.title.y=element_text(size=8,angle=90,vjust=1.5))
-p_titers1
-fig2 <- (p1/ p2 / p_titers1)
-fig2
-
-
-
-ggsave(filename="figures/figure2.png",plot=fig2,width=8,height=8,dpi=300)
-ggsave(filename="figures/figure2.pdf",plot=fig2,width=8,height=8)
-ggsave(filename="figures/figure2_back.pdf",plot=p_titer_hists,width=5,height=2.5)
 
 
 ggsave(filename="figures/supplement/figS6.png",plot=p_vacclineage_all,width=8,height=8,dpi=300)
