@@ -416,7 +416,7 @@ ggsave(filename="figures/figure1.pdf",plot=fig1,width=8,height=8)
 ggsave(paste0("plots/rebounds/rebounds_by_clearance_",days_clearance,"days.png"),p1,height=7,width=7,units="in",dpi=300)
 ggsave(paste0("plots/rebounds/rebounds_by_detection_",days_clearance,"days.png"),p2,height=7,width=7,units="in",dpi=300)
 ggsave(paste0("plots/rebounds/rebounds_individuals_",days_clearance,".png"),p3,height=10,width=8,units="in",dpi=300)
-
+ggsave(paste0("plots/rebounds/rebounds_individuals_",days_clearance,".pdf"),p3,height=10,width=8,units="in")
 write_csv(table1,paste0("plots/rebounds/table1_lineage_",days_clearance,".csv"))
 write_csv(table2,paste0("plots/rebounds/table2_vaccine_",days_clearance,".csv"))
 write_csv(res,paste0("plots/rebounds/all_res_",days_clearance,".csv"))

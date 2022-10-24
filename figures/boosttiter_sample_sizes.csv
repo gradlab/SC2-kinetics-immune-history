@@ -1,0 +1,19 @@
+LineageBroad,BoostTiterGroup,DetectionSpeed,n
+Other,HighNotBoosted,Delayed detection,7
+Other,LowNotBoosted,Delayed detection,4
+Delta,HighNotBoosted,Delayed detection,35
+Delta,LowBoosted,Delayed detection,4
+Delta,LowNotBoosted,Delayed detection,42
+Omicron,HighBoosted,Delayed detection,126
+Omicron,HighNotBoosted,Delayed detection,79
+Omicron,LowBoosted,Delayed detection,176
+Omicron,LowNotBoosted,Delayed detection,52
+Other,HighNotBoosted,Frequent testing,31
+Other,LowNotBoosted,Frequent testing,17
+Delta,HighBoosted,Frequent testing,2
+Delta,HighNotBoosted,Frequent testing,5
+Delta,LowNotBoosted,Frequent testing,9
+Omicron,HighBoosted,Frequent testing,64
+Omicron,HighNotBoosted,Frequent testing,48
+Omicron,LowBoosted,Frequent testing,79
+Omicron,LowNotBoosted,Frequent testing,21

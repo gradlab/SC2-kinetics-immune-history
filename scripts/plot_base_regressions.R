@@ -94,19 +94,27 @@ base_freq_draws <- basemodel_freq %>% epred_draws(newdata=newdata)
 base_infreq_draws <- basemodel_infreq %>% epred_draws(newdata=newdata)
 
 base_p_dat <- bind_rows(base_freq_draws %>% mutate(Protocol="Frequent testing"), base_infreq_draws %>% mutate(Protocol = "Delayed detection")) %>%
-    group_by(Protocol, DaysSinceDetection) %>% summarize(lower=quantile(.epred,0.025),upper=quantile(.epred,0.975),med=median(.epred))
+    group_by(Protocol, DaysSinceDetection) %>% summarize(lower=quantile(.epred,0.025),upper=quantile(.epred,0.975),med=median(.epred), mean=mean(.epred))
 
-p_base <- ggplot(base_p_dat, aes(x=DaysSinceDetection,ymin=lower,ymax=upper,fill=Protocol,y=med),col="None") +
-    geom_ribbon(alpha=0.5) +
-    geom_line(aes(col=Protocol))+
-    geom_vline(xintercept=5,linetype="dashed") +
-    geom_hline(yintercept=0.05,linetype="dashed") +
+p_base <- ggplot(base_p_dat, col="None") +
+    geom_ribbon(aes(x=DaysSinceDetection,ymin=lower,ymax=upper,fill=Protocol),alpha=0.5) +
+    geom_line(aes(x=DaysSinceDetection,y=med,col=Protocol,linetype="Model estimated mean"))+
+    geom_line(data=dat_subset_use %>% rename(Protocol=DetectionSpeed) %>%
+                  group_by(Protocol,DaysSinceDetection) %>% summarize(y=sum(low_ct1)/n()),
+              aes(x=DaysSinceDetection,y=y,col=Protocol,linetype="Observed data"))+
     scale_y_continuous(limits=c(0,1),expand=c(0,0), breaks=seq(0,1,by=0.2)) +
-    scale_x_continuous(breaks=seq(0,20,by=1)) +
+    scale_x_continuous(breaks=seq(0,20,by=1),limits=c(0,20)) +
     labs(y="Probability of Ct value <30",x="Days since detection") +
-    theme_minimal() +
-    theme(legend.position=c(0.7,0.7),
-          plot.background = element_rect(fill="white",color="white"))
+    scale_linetype_manual(name="Data",values=c("Model estimated mean"="solid","Observed data"="dashed")) +
+    theme_classic() +
+    scale_color_manual(name="Detection speed",values=c("Delayed detection"="grey50","Frequent testing"="cornflowerblue")) +
+    scale_fill_manual(name="Detection speed",values=c("Delayed detection"="grey50","Frequent testing"="cornflowerblue")) +
+    theme(legend.position=c(0.75,0.5),
+          axis.text=element_text(size=8),axis.title=element_text(size=8),
+          legend.title=element_text(size=8),legend.text=element_text(size=8),
+          panel.grid.major = element_line(color="grey70",size=0.25),
+          strip.background=element_blank(),
+          strip.text=element_text(face="bold"))
 
 ## Age model
 newdata <- expand_grid(DaysSinceDetection=seq(0,20,by=0.1),AgeGroup=unique(age_freq$data$AgeGroup))
@@ -238,10 +246,12 @@ vacclineagemodel_freq$data %>% group_by(LineageBroad_VaccStatus) %>% tally()
 vacclineage_freq_res
 vacclineage_infreq_res
 
-ggsave(filename="figures/supplement/baseline_regression.png",plot=p_base,width=6,height=3,dpi=300)
+ggsave(filename="figures/supplement/FigS5.png",plot=p_base,width=6,height=3,dpi=300)
+ggsave(filename="figures/supplement/FigS5.pdf",plot=p_base,width=6,height=3)
+
 ggsave(filename="figures/supplement/vacclineage_regression.png",plot=p_vacclineage,width=8,height=3,dpi=300)
 ggsave(filename="figures/supplement/vacclineage_regression_all.png",plot=p_vacclineage_all,width=8,height=8,dpi=300)
 
 
-ggsave(filename="figures/supplement/figS6.png",plot=p_vacclineage_all,width=8,height=8,dpi=300)
-ggsave(filename="figures/supplement/figS6.pdf",plot=p_vacclineage_all,width=8,height=8)
+ggsave(filename="figures/supplement/figS7.png",plot=p_vacclineage_all,width=8,height=8,dpi=300)
+ggsave(filename="figures/supplement/figS7.pdf",plot=p_vacclineage_all,width=8,height=8)

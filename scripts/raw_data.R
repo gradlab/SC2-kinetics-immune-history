@@ -6,15 +6,23 @@ library(ggplot2)
 library(data.table)
 library(patchwork)
 
-setwd("~/Documents/GitHub/SC2-kinetics-immune-history/")
-lineage_colors <- c("Delta"="red3","Omicron"="blue","Other"="black","None"="grey70")
-
 ## Set to FALSE if you have the original data files
 anonymous <- TRUE
 
+setwd("~/Documents/GitHub/SC2-kinetics-immune-history/")
+lineage_colors <- c("Delta"="red3","Omicron"="blue","Other"="black","None"="grey70")
+
+
 ## Read in cleaned data
-dat <- read_csv("data/ct_data_cleaned.csv")
-repeat_dat <- read_csv("data/ct_data_cleaned_repeats.csv")
+
+if(anonymous){
+    dat <- read_csv("data/ct_data_cleaned.csv")
+    repeat_dat <- read_csv("data/ct_data_cleaned_repeats.csv")
+} else {
+    
+    dat <- read_csv("~/Documents/GitHub/ct_nba/data/ct_dat_subset_20220617.csv")
+    repeat_dat <- read_csv("~/Documents/GitHub/ct_nba/data/ct_dat_repeats_20220617.csv")
+}
 
 ## Because things like e.g., vaccination status can change partway through an infection, we need to re-create the categories using the category at the time of detection, not at the time of observation.
 tmp1 <- dat %>% group_by(PersonID, CumulativeInfectionNumber) %>% mutate(x = abs(DaysSinceDetection)) %>% filter(x == min(x)) %>%
@@ -59,7 +67,7 @@ if(!anonymous){
 
     min_date <- dat %>% filter(TestResult %in% c("Negative","Positive","Inconclusive")) %>% summarize(x=min(TestDate,na.rm=TRUE)) %>% pull(x)
 
-    dat %>% filter(PersonID %in% multiple_roles) %>% select(PersonID, Role) %>% distinct()
+    #dat %>% filter(PersonID %in% multiple_roles) %>% select(PersonID, Role) %>% distinct()
     
     ## Correct some roles
     dat[dat$PersonID == 969,"Role"] <- "Referee"
@@ -203,7 +211,8 @@ if(!anonymous){
     
     
     p_main <- p_lineage_counts/p_lineage_sequenced_props
-    ggsave("figures/supplement/lineage_proportions.png",p_main,height=6,width=7)
+    ggsave("figures/supplement/lineage_proportions.png",p_main,height=6,width=7,dpi=300)
+    ggsave("figures/supplement/lineage_proportions.pdf",p_main,height=6,width=7)
 }
     
 ## Number of antibody titers
@@ -246,7 +255,8 @@ p_lag_2 <- dat %>% select(PersonID,VaccineDose2Date,BoosterDate,TiterDate) %>% d
     theme(plot.tag=element_text(face="bold"))
 
 supp_p_lags <- p_lag_1/p_lag_2
-ggsave("figures/supplement/vaccine_titer_lags.png",supp_p_lags,height=8,width=7)
+ggsave("figures/supplement/vaccine_titer_lags.png",supp_p_lags,height=8,width=7,dpi=300)
+ggsave("figures/supplement/vaccine_titer_lags.pdf",supp_p_lags,height=8,width=7)
 
 ## How many individuals had an infection inbetween 2nd dose and titer?
 dat %>% filter(NewInfectionIdentified== TRUE) %>% filter(TestDate >= VaccineDose2Date, TestDate <= TiterDate) %>% group_by(LineageBroad) %>% tally()

@@ -319,6 +319,8 @@ p2 <- ggplot(dat_peak %>% filter(!is.na(Delay),LineageBroad !="None")) +
 if(!nonplayers){
     ggsave("figures/supplement/incubation_period_detection.png",p1,height=6,width=8,units="in",dpi=300)
     ggsave("figures/supplement/incubation_period_peak.png",p2,height=6,width=8,units="in",dpi=300)
+    ggsave("figures/supplement/incubation_period_detection.pdf",p1,height=6,width=8,units="in")
+    ggsave("figures/supplement/incubation_period_peak.pdf",p2,height=6,width=8,units="in")
 }
 
 ## More symptomatics in delayed detection
@@ -721,4 +723,5 @@ p_boost_infn <- p1 | p2
 p_boost_infn
 if(!nonplayers){
     ggsave(paste0(savewd,"/figures/supplement/boost_infn.png"),p_boost_infn,height=5,width=12,units="in",dpi=300)
+    ggsave(paste0(savewd,"/figures/supplement/boost_infn.pdf"),p_boost_infn,height=5,width=12,units="in")
 }
