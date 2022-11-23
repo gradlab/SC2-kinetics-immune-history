@@ -6,7 +6,7 @@ __James A. Hay, Stephen M. Kissler, Joseph R. Fauver, Christina Mack, Caroline G
 
 For issues with code, please contact: 
 
-jhay@hsph.harvard.edu
+jameshay218@gmail.com
 
 skissler@hsph.harvard.edu
 
