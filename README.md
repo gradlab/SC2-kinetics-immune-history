@@ -1,5 +1,6 @@
 ## Code and data associated with: 
-# The impact of immune history and variant on SARS-CoV-2 viral kinetics and infection rebound
+# Quantifying the impact of immune history and variant on SARS-CoV-2 viral kinetics and infection rebound: a retrospective cohort study
+Published at: https://doi.org/10.7554/eLife.81849
 
 __James A. Hay, Stephen M. Kissler, Joseph R. Fauver, Christina Mack, Caroline G. Tai, Radhika M. Samant, Sarah Connolly, Deverick J. Anderson, Gaurav Khullar, Matthew MacKay, Miral Patel, Shannan Kelly, April Manhertz, Isaac Eiter, Daisy Salgado, Tim Baker, Ben Howard, Joel T. Dudley, Christopher E. Mason, Manoj Nair, Yaoxing Huang, David D. Ho, Nathan D. Grubaugh, Yonatan H. Grad__
 
